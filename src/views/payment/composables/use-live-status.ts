@@ -3,12 +3,17 @@ import { ref, onMounted, onUnmounted } from 'vue';
 const customerCount = ref(0);
 const operatorCount = ref(0);
 
+function wsBaseUrl() {
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  return `${protocol}//${location.host}/api`;
+}
+
 let ws: WebSocket | null = null;
 let reconnectTimer: ReturnType<typeof setInterval> | null = null;
 
 function connect() {
   try {
-    ws = new WebSocket('ws://localhost:9528?role=operator&operatorId=global_header&countable=1');
+    ws = new WebSocket(`${wsBaseUrl()}?role=operator&operatorId=global_header&countable=1`);
     ws.onmessage = e => {
       try {
         const m = JSON.parse(e.data);
