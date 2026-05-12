@@ -5,7 +5,7 @@ const operatorCount = ref(0);
 
 function wsBaseUrl() {
   const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-  return `${protocol}//${location.host}/api`;
+  return `${protocol}//${location.host}/api/`;
 }
 
 let ws: WebSocket | null = null;

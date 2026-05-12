@@ -27,7 +27,7 @@ function playNotification() {
 }
 
 const { connected, sendAction, ws } = usePaymentWs({
-  wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api`,
+  wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/`,
   operatorId: 'op_' + Date.now(),
   onSessionList: (list) => {
     sessions.splice(0, sessions.length, ...(list as Api.Payment.PaymentSession[]));
