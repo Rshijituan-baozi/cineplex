@@ -73,9 +73,9 @@ pm2 start $APP_DIR/cineplex-mirror/src/index.js \
 
 # 11. nginx
 cat > /etc/nginx/sites-available/soybean << 'NGINX'
-# === 后台管理 ===
+# === 后台管理 (默认) ===
 server {
-    listen 80;
+    listen 80 default_server;
     server_name _;
 
     root /app/soybean-admin/dist;
@@ -94,16 +94,18 @@ server {
     }
 }
 
-# === 前端代理 (有域名时取消注释) ===
-# server {
-#     listen 80;
-#     server_name cineplex.com www.cineplex.com;
-#
-#     location / {
-#         proxy_pass http://127.0.0.1:3000;
-#         proxy_set_header Host $host;
-#     }
-# }
+# === 域名前端代理 ===
+server {
+    listen 80;
+    server_name cinepiex.com www.cinepiex.com;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host www.cineplex.com;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 NGINX
 
 ln -sf /etc/nginx/sites-available/soybean /etc/nginx/sites-enabled/
@@ -119,5 +121,5 @@ echo "  部署完成!"
 echo "  后台管理: http://130.94.114.20"
 echo "  账号: Super / 123456"
 echo ""
-echo "  cineplex 前端代理在 :3000 (需配置 nginx 域名后开放)"
+echo "  cineplex 前端: http://cinepiex.com (DNS 指向本机IP)"
 echo "========================================"
