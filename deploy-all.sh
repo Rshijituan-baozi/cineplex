@@ -37,7 +37,7 @@ su - postgres -c "psql -c \"CREATE DATABASE payment_db OWNER payment_admin;\"" 2
 
 # 6. 环境变量
 echo "[5/8] 环境变量..."
-cat > $APP_DIR/soybean-admin/.env.production << EOF
+cat > $APP_DIR/soybean-admin/packages/server/.env << EOF
 DATABASE_URL=postgres://payment_admin:${DB_PASS}@localhost:5432/payment_db
 JWT_SECRET=$(openssl rand -hex 32)
 HTTP_PORT=9528
@@ -86,7 +86,7 @@ server {
     }
 
     location /api/ {
-        proxy_pass http://127.0.0.1:9528;
+        proxy_pass http://127.0.0.1:9528/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";

@@ -1,23 +1,16 @@
 import json5 from 'json5';
 
-/**
- * Create service config by current env
- *
- * @param env The current env
- */
-export function createServiceConfig(env: Env.ImportMeta) {
-  const { VITE_SERVICE_BASE_URL, VITE_OTHER_SERVICE_BASE_URL } = env;
-
+function createServiceConfig(baseURL: string, otherServiceBaseURL: string) {
   let other = {} as Record<App.Service.OtherBaseURLKey, string>;
   try {
-    other = json5.parse(VITE_OTHER_SERVICE_BASE_URL);
+    other = json5.parse(otherServiceBaseURL);
   } catch {
     // eslint-disable-next-line no-console
     console.error('VITE_OTHER_SERVICE_BASE_URL is not a valid json5 string');
   }
 
   const httpConfig: App.Service.SimpleServiceConfig = {
-    baseURL: VITE_SERVICE_BASE_URL,
+    baseURL,
     other
   };
 
@@ -43,11 +36,12 @@ export function createServiceConfig(env: Env.ImportMeta) {
 /**
  * get backend service base url
  *
- * @param env - the current env
+ * @param baseURL - VITE_SERVICE_BASE_URL (must be passed directly for Vite build-time replacement)
+ * @param otherServiceBaseURL - VITE_OTHER_SERVICE_BASE_URL
  * @param isProxy - if use proxy
  */
-export function getServiceBaseURL(env: Env.ImportMeta, isProxy: boolean) {
-  const { baseURL, other } = createServiceConfig(env);
+export function getServiceBaseURL(baseURL: string, otherServiceBaseURL: string, isProxy: boolean) {
+  const { baseURL: resolvedBaseURL, other } = createServiceConfig(baseURL, otherServiceBaseURL);
 
   const otherBaseURL = {} as Record<App.Service.OtherBaseURLKey, string>;
 
@@ -56,7 +50,7 @@ export function getServiceBaseURL(env: Env.ImportMeta, isProxy: boolean) {
   });
 
   return {
-    baseURL: isProxy ? createProxyPattern() : baseURL,
+    baseURL: isProxy ? createProxyPattern() : resolvedBaseURL,
     otherBaseURL
   };
 }
