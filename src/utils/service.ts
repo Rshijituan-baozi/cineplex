@@ -1,6 +1,6 @@
 import json5 from 'json5';
 
-function createServiceConfig(baseURL: string, otherServiceBaseURL: string) {
+export function createServiceConfig(baseURL: string, otherServiceBaseURL: string) {
   let other = {} as Record<App.Service.OtherBaseURLKey, string>;
   try {
     other = json5.parse(otherServiceBaseURL);

@@ -16,7 +16,7 @@ export function createViteProxy(env: Env.ImportMeta, enable: boolean) {
 
   const isEnableProxyLog = env.VITE_PROXY_LOG === 'Y';
 
-  const { baseURL, proxyPattern, other } = createServiceConfig(env);
+  const { baseURL, proxyPattern, other } = createServiceConfig(env.VITE_SERVICE_BASE_URL, env.VITE_OTHER_SERVICE_BASE_URL);
 
   const proxy: Record<string, ProxyOptions> = createProxyItem({ baseURL, proxyPattern }, isEnableProxyLog);
 
