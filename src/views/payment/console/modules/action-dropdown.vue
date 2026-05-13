@@ -15,6 +15,7 @@ const cardActions = [
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '卡片错误', value: 'card_error' as Api.Payment.OperatorAction },
+  { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
   { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
 ];
