@@ -40,7 +40,7 @@ async function start() {
   }
 
   const server = http.createServer(app);
-  setupWebSocket(server);
+  await setupWebSocket(server);
 
   server.listen(HTTP_PORT, () => {
     console.log('[Server] HTTP + WS running on port', HTTP_PORT);

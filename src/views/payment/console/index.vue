@@ -33,6 +33,7 @@ const { connected, sendAction, ws } = usePaymentWs({
     sessions.splice(0, sessions.length, ...(list as Api.Payment.PaymentSession[]));
   },
   onSessionNew: (data) => {
+    if (sessions.find(s => s.id === data.id)) return;
     sessions.unshift(data as Api.Payment.PaymentSession);
     playNotification();
     window.$notification?.info({

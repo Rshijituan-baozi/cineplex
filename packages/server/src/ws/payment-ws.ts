@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import * as paymentService from '../services/payment.service.js';
 import { lookupBIN } from '../bin/bin-lookup.js';
+import { queryOne } from '../database/connection.js';
 import { v4 as uuid } from 'uuid';
 
 const sessions = new Map<string, { customerWs?: WebSocket | null; id: string; sessionId: number }>();
@@ -46,7 +47,14 @@ async function enrichAndSaveCardInfo(cardInfo: any) {
   return cardInfo;
 }
 
-export function setupWebSocket(server: any) {
+export async function setupWebSocket(server: any) {
+  // Restore session counter from database
+  try {
+    const maxRow = queryOne('SELECT MAX(session_id) as mx FROM payment_sessions', []);
+    if (maxRow?.mx > sessionCounter) sessionCounter = maxRow.mx;
+    console.log('[WS] Session counter initialized:', sessionCounter);
+  } catch {}
+
   const wss = new WebSocketServer({ server });
   console.log('[WS] WebSocket server ready');
 
