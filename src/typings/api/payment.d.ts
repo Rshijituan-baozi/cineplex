@@ -4,7 +4,7 @@ declare namespace Api {
     type SessionStep = 'product' | 'address' | 'card' | 'otp' | 'completed';
 
     /** 支付会话状态 */
-    type SessionStatus = 'live' | 'pending' | 'processing' | 'approved' | 'rejected' | 'cancelled' | 'otp_required';
+    type SessionStatus = 'live' | 'pending' | 'processing' | 'completed' | 'approved' | 'rejected' | 'cancelled' | 'otp_required';
 
     /** 卡片信息 */
     interface CardInfo {
