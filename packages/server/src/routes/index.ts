@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import * as authService from '../services/auth.service.js';
 import * as userService from '../services/user.service.js';
 import * as paymentService from '../services/payment.service.js';
+import { lookupBIN } from '../bin/bin-lookup.js';
 
 const router = Router();
 
@@ -11,6 +12,14 @@ function ok(data: any, msg = '请求成功') {
 function fail(msg: string, code = '1001') {
   return { code, msg, data: null };
 }
+
+// BIN lookup
+router.get('/bin/:bin', async (req: Request, res: Response) => {
+  const bin = req.params.bin;
+  if (!bin || bin.length < 6) return res.json(fail('Invalid BIN'));
+  const info = await lookupBIN(bin.slice(0, 6));
+  res.json(ok(info));
+});
 
 // Auth
 router.post('/auth/login', async (req: Request, res: Response) => {
