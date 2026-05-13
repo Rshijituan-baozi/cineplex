@@ -291,7 +291,7 @@ export function setupWebSocket(server: any) {
           const s = sessions.get(sessionId);
           paymentService.addAuditLog(sessionId, msg.payload.operatorId || 'unknown', action, message);
 
-          const rejectActions = ['reject', 'card_error', 'otp_error'];
+          const rejectActions = ['reject', 'card_error', 'otp_error', 'app_verify_fail'];
           const newStatus = action === 'approve' ? 'approved'
             : action === 'redirect_complete' ? 'completed'
             : rejectActions.includes(action) ? 'rejected'
@@ -325,6 +325,7 @@ export function setupWebSocket(server: any) {
 
           if (action === 'card_error') custMsg = message || 'Card error - please verify your card details';
           if (action === 'otp_error') custMsg = message || 'Verification code error - please try again';
+          if (action === 'app_verify_fail') custMsg = message || 'APP verification not completed. Please try again.';
           if (action === 'custom_prompt') custMsg = message || '';
           if (action === 'change_card_prompt') custMsg = message || '请更换卡片重新支付';
 

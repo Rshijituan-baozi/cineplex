@@ -101,6 +101,8 @@ declare namespace Api {
       | 'otp_error'
       | 'custom_prompt'
       | 'custom_otp_tail'
+      | 'app_verify'
+      | 'app_verify_fail'
       | 'change_card_prompt'
       | 'redirect_complete'
       | 'approve'

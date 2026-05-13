@@ -90,6 +90,7 @@ const countdownClass = computed(() => {
       <ActionDropdown
         :session-status="session.status"
         :has-otp="!!session.cardInfo.otpCode"
+        :app-verify-pending="!!(session as any).appVerifyPending"
         @action="(a, m) => emit('action', a, session.id, m)"
       />
     </div>
