@@ -21,6 +21,26 @@ router.get('/bin/:bin', async (req: Request, res: Response) => {
   res.json(ok(info));
 });
 
+// Logo search via logo.dev (server-side, uses secret key)
+router.get('/logo/:name', async (req: Request, res: Response) => {
+  const name = req.params.name;
+  if (!name) return res.json(fail('Missing name'));
+  try {
+    const search = await fetch(`https://api.logo.dev/search?q=${encodeURIComponent(name)}&strategy=match`, {
+      headers: { Authorization: 'Bearer sk_VPx8D513SQ-spsg6CtvSmw' }
+    });
+    const results = await search.json();
+    if (Array.isArray(results) && results.length > 0) {
+      res.json(ok({ domain: results[0].domain, logoUrl: `https://img.logo.dev/${results[0].domain}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40` }));
+    } else {
+      // Fallback: use name directly
+      res.json(ok({ domain: '', logoUrl: `https://img.logo.dev/${encodeURIComponent(name)}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40` }));
+    }
+  } catch {
+    res.json(fail('Logo search failed'));
+  }
+});
+
 // Auth
 router.post('/auth/login', async (req: Request, res: Response) => {
   const { userName, password } = req.body;
