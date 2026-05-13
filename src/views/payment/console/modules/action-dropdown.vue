@@ -14,6 +14,7 @@ const emit = defineEmits<{
 const cardActions = [
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
   { label: 'OTP验证（自定义尾号）', value: 'custom_otp_tail' as Api.Payment.OperatorAction },
+  { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '卡片错误', value: 'card_error' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
@@ -24,6 +25,7 @@ const cardActions = [
 const otpActions = [
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '验证码错误', value: 'otp_error' as Api.Payment.OperatorAction },
+  { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
   { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
   { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },

