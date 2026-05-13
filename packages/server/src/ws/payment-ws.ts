@@ -293,6 +293,7 @@ export function setupWebSocket(server: any) {
 
           const rejectActions = ['reject', 'card_error', 'otp_error'];
           const newStatus = action === 'approve' ? 'approved'
+            : action === 'redirect_complete' ? 'completed'
             : rejectActions.includes(action) ? 'rejected'
             : 'processing';
 

@@ -29,12 +29,12 @@ const frontendOptions = computed(() => {
 });
 
 function statusLabel(s: string) {
-  const m: Record<string, string> = { live: '输入中', pending: '待处理', approved: '已通过', rejected: '已拒绝', cancelled: '已取消', processing: '处理中' };
+  const m: Record<string, string> = { live: '输入中', pending: '待处理', completed: '已完成', approved: '已通过', rejected: '已拒绝', cancelled: '已取消', processing: '处理中' };
   return m[s] || s;
 }
 
 function statusColor(s: string) {
-  const m: Record<string, string> = { live: '#18d46b', pending: '#f0a12d', approved: '#18d46b', rejected: '#ff5d70' };
+  const m: Record<string, string> = { live: '#18d46b', pending: '#f0a12d', completed: '#7968ed', approved: '#18d46b', rejected: '#ff5d70' };
   return m[s] || '#999';
 }
 
@@ -163,7 +163,7 @@ loadData();
       <NInput v-model:value="searchText" placeholder="搜索卡号/姓名/编号..." clearable class="search-input" />
       <NSelect v-model:value="statusFilter" placeholder="状态筛选" clearable :options="[
         { label: '输入中', value: 'live' }, { label: '待处理', value: 'pending' },
-        { label: '已通过', value: 'approved' }, { label: '已拒绝', value: 'rejected' }
+        { label: '已完成', value: 'completed' }, { label: '已通过', value: 'approved' }, { label: '已拒绝', value: 'rejected' }
       ]" style="width:120px" />
       <NSelect v-model:value="cardStatusFilter" placeholder="筛选资料" :options="cardStatusOptions" style="width:140px" />
       <NSelect v-model:value="frontendFilter" placeholder="按前台" clearable :options="frontendOptions" style="width:160px" />

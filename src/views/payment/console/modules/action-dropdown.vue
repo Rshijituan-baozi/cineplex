@@ -89,6 +89,7 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean) {
   const map: Record<string, string> = {
     live: '实时输入中',
     processing: '处理中',
+    completed: '已完成',
     approved: '已通过',
     rejected: '已拒绝',
     cancelled: '已取消',

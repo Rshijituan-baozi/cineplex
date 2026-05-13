@@ -12,7 +12,7 @@ const emit = defineEmits<{
 const stepLabel = (s: string) => ({ product: '商品页', address: '地址页', card: '卡片页', otp: 'OTP验证页', completed: '已完成' }[s] || s);
 
 const statusLabel = (s: string) => {
-  const m: Record<string, string> = { live: '实时输入中', pending: '待处理', processing: '处理中', approved: '已通过', rejected: '已拒绝', cancelled: '已取消' };
+  const m: Record<string, string> = { live: '实时输入中', pending: '待处理', processing: '处理中', completed: '已完成', approved: '已通过', rejected: '已拒绝', cancelled: '已取消' };
   return m[s] || s;
 };
 </script>
