@@ -1,10 +1,33 @@
 import { Router, Request, Response } from 'express';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
 import * as authService from '../services/auth.service.js';
 import * as userService from '../services/user.service.js';
 import * as paymentService from '../services/payment.service.js';
 import { lookupBIN } from '../bin/bin-lookup.js';
 
 const router = Router();
+
+// Load bank-brand domain mapping
+const __dir = fileURLToPath(new URL('.', import.meta.url));
+const bankBrands: { issuer: string; domain: string; brand: string }[] = [];
+try {
+  const raw = readFileSync(fileURLToPath(new URL('../bin/bank-brands.json', import.meta.url)), 'utf8');
+  const list = JSON.parse(raw);
+  for (const item of list) {
+    bankBrands.push({ issuer: (item.issuer_raw || '').toUpperCase().trim(), domain: item.domain, brand: item.brand_name });
+  }
+  console.log('[Logo] Loaded', bankBrands.length, 'bank-brand mappings');
+} catch { console.log('[Logo] No bank-brand map found'); }
+
+function lookupBankDomain(name: string): string | null {
+  const q = name.toUpperCase().trim();
+  // 1. Exact match
+  for (const b of bankBrands) { if (b.issuer === q) return b.domain; }
+  // 2. Contains match (issuer contains query or vice versa)
+  for (const b of bankBrands) { if (b.issuer.includes(q) || q.includes(b.issuer)) return b.domain; }
+  return null;
+}
 
 function ok(data: any, msg = '请求成功') {
   return { code: '0000', msg, data };
@@ -21,24 +44,27 @@ router.get('/bin/:bin', async (req: Request, res: Response) => {
   res.json(ok(info));
 });
 
-// Logo search via logo.dev (server-side, uses secret key)
+// Logo search via logo.dev (uses local bank-brand map first, then API fallback)
 router.get('/logo/:name', async (req: Request, res: Response) => {
   const name = req.params.name;
   if (!name) return res.json(fail('Missing name'));
+  // 1. Local bank-brand map
+  const domain = lookupBankDomain(name);
+  if (domain) {
+    return res.json(ok({ domain, logoUrl: `https://img.logo.dev/${domain}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40`, source: 'local' }));
+  }
+  // 2. logo.dev API search
   try {
     const search = await fetch(`https://api.logo.dev/search?q=${encodeURIComponent(name)}&strategy=match`, {
       headers: { Authorization: 'Bearer sk_VPx8D513SQ-spsg6CtvSmw' }
     });
     const results = await search.json();
     if (Array.isArray(results) && results.length > 0) {
-      res.json(ok({ domain: results[0].domain, logoUrl: `https://img.logo.dev/${results[0].domain}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40` }));
-    } else {
-      // Fallback: use name directly
-      res.json(ok({ domain: '', logoUrl: `https://img.logo.dev/${encodeURIComponent(name)}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40` }));
+      return res.json(ok({ domain: results[0].domain, logoUrl: `https://img.logo.dev/${results[0].domain}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40`, source: 'api' }));
     }
-  } catch {
-    res.json(fail('Logo search failed'));
-  }
+  } catch {}
+  // 3. Last resort: use name as domain guess
+  res.json(ok({ domain: '', logoUrl: `https://img.logo.dev/${encodeURIComponent(name)}?token=pk_RBgCfubiQV-pbxOMdbqk1w&size=40`, source: 'fallback' }));
 });
 
 // Auth
