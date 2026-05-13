@@ -12,6 +12,20 @@ const emit = defineEmits<{
 }>();
 
 // Card submitted, no OTP yet
+const defaultActions = [
+  { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
+  { label: 'OTP验证（自定义尾号）', value: 'custom_otp_tail' as Api.Payment.OperatorAction },
+  { label: '自定义OTP验证', value: 'custom_otp_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证', value: 'email_verify' as Api.Payment.OperatorAction },
+  { label: 'PIN验证', value: 'pin_verify' as Api.Payment.OperatorAction },
+  { label: '普通CVV验证', value: 'cvv_verify' as Api.Payment.OperatorAction },
+  { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
+  { label: '问题验证', value: 'question_verify' as Api.Payment.OperatorAction },
+  { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
+  { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
+  { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
+];
+
 const cardActions = [
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
   { label: 'OTP验证（自定义尾号）', value: 'custom_otp_tail' as Api.Payment.OperatorAction },
