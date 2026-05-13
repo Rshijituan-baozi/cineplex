@@ -8,6 +8,7 @@ interface UsePaymentWsOptions {
   onSessionRemove?: (sessionId: string) => void;
   onSessionList?: (sessions: any[]) => void;
   onConnectCount?: (count: Api.Payment.ConnectCount) => void;
+  onResendOtp?: (data: { sessionId: string; count: number }) => void;
 }
 
 export function usePaymentWs(options: UsePaymentWsOptions) {
@@ -56,6 +57,9 @@ export function usePaymentWs(options: UsePaymentWsOptions) {
           break;
         case 'connect_count':
           onConnectCount?.(msg.payload);
+          break;
+        case 'resend_otp':
+          onResendOtp?.(msg.payload);
           break;
       }
     };

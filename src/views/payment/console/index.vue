@@ -83,6 +83,10 @@ const { connected, sendAction, ws } = usePaymentWs({
   },
   onConnectCount: (count) => {
     Object.assign(connectCount, count);
+  },
+  onResendOtp: (data) => {
+    const s = sessions.find(s => s.id === data.sessionId);
+    window.$message?.warning(`客户请求重发验证码 (第${data.count}次)${s ? ' - 会话'+s.sessionId : ''}`, { duration: 4000 });
   }
 });
 
