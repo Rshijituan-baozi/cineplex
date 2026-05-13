@@ -100,6 +100,7 @@ declare namespace Api {
       | 'card_error'
       | 'otp_error'
       | 'custom_prompt'
+      | 'change_card_prompt'
       | 'redirect_complete'
       | 'approve'
       | 'reject';

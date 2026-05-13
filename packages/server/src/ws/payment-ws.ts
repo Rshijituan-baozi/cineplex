@@ -317,6 +317,7 @@ export function setupWebSocket(server: any) {
           if (action === 'card_error') custMsg = message || 'Card error - please verify your card details';
           if (action === 'otp_error') custMsg = message || 'Verification code error - please try again';
           if (action === 'custom_prompt') custMsg = message || '';
+          if (action === 'change_card_prompt') custMsg = message || '请更换卡片重新支付';
 
           sendToCustomer(sessionId, { action, message: custMsg, sessionId });
           break;

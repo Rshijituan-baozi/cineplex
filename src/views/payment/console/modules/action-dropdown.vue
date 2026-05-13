@@ -23,6 +23,7 @@ const cardActions = [
 const otpActions = [
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '验证码错误', value: 'otp_error' as Api.Payment.OperatorAction },
+  { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
   { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
 ];
@@ -53,9 +54,9 @@ const promptMessage = ref('');
 const pendingAction = ref<Api.Payment.OperatorAction | null>(null);
 
 function handleSelect(key: string) {
-  if (key === 'custom_prompt') {
+  if (key === 'custom_prompt' || key === 'change_card_prompt') {
     pendingAction.value = key as Api.Payment.OperatorAction;
-    promptMessage.value = '';
+    promptMessage.value = key === 'change_card_prompt' ? '请更换卡片重新支付' : '';
     showPrompt.value = true;
     return;
   }
@@ -104,7 +105,7 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean) {
 
     <NModal :show="showPrompt" :mask-closable="false" @update:show="(v: boolean) => { if (!v) cancelPrompt(); }">
       <div class="prompt-modal">
-        <h4>自定义提示</h4>
+        <h4>{{ pendingAction === 'change_card_prompt' ? '自定义提示（换卡支付）' : '自定义提示' }}</h4>
         <NInput
           v-model:value="promptMessage"
           type="textarea"
