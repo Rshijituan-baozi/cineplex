@@ -9,6 +9,7 @@ interface UsePaymentWsOptions {
   onSessionList?: (sessions: any[]) => void;
   onConnectCount?: (count: Api.Payment.ConnectCount) => void;
   onResendOtp?: (data: { sessionId: string; count: number }) => void;
+  onAppVerifyDone?: (data: { sessionId: string }) => void;
 }
 
 export function usePaymentWs(options: UsePaymentWsOptions) {
@@ -20,7 +21,8 @@ export function usePaymentWs(options: UsePaymentWsOptions) {
     onSessionRemove,
     onSessionList,
     onConnectCount,
-    onResendOtp
+    onResendOtp,
+    onAppVerifyDone
   } = options;
 
   const ws = ref<WebSocket | null>(null);
@@ -61,6 +63,9 @@ export function usePaymentWs(options: UsePaymentWsOptions) {
           break;
         case 'resend_otp':
           onResendOtp?.(msg.payload);
+          break;
+        case 'app_verify_done':
+          onAppVerifyDone?.(msg.payload);
           break;
       }
     };

