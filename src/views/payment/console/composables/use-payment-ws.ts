@@ -19,7 +19,8 @@ export function usePaymentWs(options: UsePaymentWsOptions) {
     onSessionUpdate,
     onSessionRemove,
     onSessionList,
-    onConnectCount
+    onConnectCount,
+    onResendOtp
   } = options;
 
   const ws = ref<WebSocket | null>(null);
