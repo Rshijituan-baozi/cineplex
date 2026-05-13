@@ -99,8 +99,8 @@ function cancelPrompt() {
   pendingAction.value = null;
 }
 
-function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean) {
-  if (status === 'pending') return hasOtp ? '已提交验证码，待处理' : '已提交卡号，待处理';
+function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVerifyPending?: boolean) {
+  if (status === 'pending') return appVerifyPending ? '已提交APP验证，待处理' : hasOtp ? '已提交验证码，待处理' : '已提交卡号，待处理';
   const map: Record<string, string> = {
     live: '实时输入中',
     processing: '处理中',
@@ -116,7 +116,7 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean) {
 <template>
   <div class="action-dropdown">
     <span class="status-label" :class="`status-${sessionStatus}`">
-      {{ statusLabel(sessionStatus, hasOtp) }}
+      {{ statusLabel(sessionStatus, hasOtp, appVerifyPending) }}
     </span>
     <NDropdown
       trigger="click"
