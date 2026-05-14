@@ -155,8 +155,16 @@ function handleMoveTop(sessionId: string) {
   }
 }
 
+function handleForceOffline(sessionId: string) {
+  if (ws.value?.readyState === WebSocket.OPEN) {
+    ws.value.send(JSON.stringify({ type: 'force_offline', payload: { sessionId } }));
+  }
+  const idx = sessions.findIndex(s => s.id === sessionId);
+  if (idx !== -1) sessions.splice(idx, 1);
+}
+
 onUnmounted(() => {
-  audioCtx?.close();
+});
 });
 </script>
 
@@ -177,6 +185,7 @@ onUnmounted(() => {
           :session="s"
           @action="(a: any, s: any, m: any) => handleAction(a, s, m)"
           @move-top="handleMoveTop"
+          @force-offline="handleForceOffline"
         />
       </TransitionGroup>
     </div>

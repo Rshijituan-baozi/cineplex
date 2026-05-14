@@ -12,6 +12,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'action', action: Api.Payment.OperatorAction, sessionId: string, message?: string): void;
   (e: 'moveTop', sessionId: string): void;
+  (e: 'forceOffline', sessionId: string): void;
 }>();
 
 function handleMoveTop() {
@@ -93,6 +94,7 @@ const countdownClass = computed(() => {
         :app-verify-pending="!!(session as any).appVerifyPending"
         @action="(a, m) => emit('action', a, session.id, m)"
       />
+      <NButton size="tiny" quaternary type="error" @click="emit('forceOffline', session.id)" title="强制离线">✕</NButton>
     </div>
   </div>
 </template>
