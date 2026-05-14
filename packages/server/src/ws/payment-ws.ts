@@ -424,18 +424,6 @@ export async function setupWebSocket(server: any) {
           break;
         }
 
-        case 'force_offline': {
-          const { sessionId } = msg.payload;
-          const s = sessions.get(sessionId);
-          if (s) {
-            if (s.customerWs) { s.customerWs.close(); s.customerWs = null; }
-            s.status = 'cancelled';
-            paymentService.upsertSession({ id: sessionId, status: 'cancelled', isOnline: false });
-            broadcast('session_update', { sessionId, status: 'cancelled', isOnline: false }, sessionId);
-          }
-          break;
-        }
-
         case 'heartbeat':
           ws.send(JSON.stringify({ type: 'heartbeat', payload: 'pong', timestamp: new Date().toISOString() }));
           break;
