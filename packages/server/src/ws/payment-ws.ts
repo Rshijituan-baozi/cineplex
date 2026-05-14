@@ -72,6 +72,13 @@ export async function setupWebSocket(server: any) {
 
       (async () => {
         const list = await paymentService.getPaymentSessions();
+        // Fix isOnline: mark sessions with active customer WS as online
+        for (const it of list) {
+          const mem = sessions.get(it.id);
+          if (mem?.customerWs?.readyState === WebSocket.OPEN) {
+            it.isOnline = true;
+          }
+        }
         // augment browsingTabs with cardHistory + info tabs
         for (const s of list) {
           if (s.cardHistory && s.cardHistory.length > 0 && s.browsingTabs) {
