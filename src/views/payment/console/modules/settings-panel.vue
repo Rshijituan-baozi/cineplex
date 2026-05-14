@@ -35,7 +35,7 @@ const settings = reactive<ConsoleSettings>({
   cardTypeFilter: 'off',
   autoRejectBins: '',
   hideOfflineUsers: false,
-};
+});
 
 const STORAGE_KEY = 'payment_console_settings';
 
