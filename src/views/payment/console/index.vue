@@ -30,7 +30,8 @@ const { connected, sendAction, ws } = usePaymentWs({
   wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/`,
   operatorId: 'op_' + Date.now(),
   onSessionList: (list) => {
-    sessions.splice(0, sessions.length, ...(list as Api.Payment.PaymentSession[]));
+    const onlineOnly = (list as Api.Payment.PaymentSession[]).filter(s => s.isOnline !== false);
+    sessions.splice(0, sessions.length, ...onlineOnly);
   },
   onSessionNew: (data) => {
     if (sessions.find(s => s.id === data.id)) return;
@@ -57,6 +58,11 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.currentStep !== undefined) s.currentStep = data.currentStep;
       if (data.status !== undefined) s.status = data.status;
       if (data.isOnline !== undefined) s.isOnline = data.isOnline;
+      // Remove from list when customer goes offline
+      if (data.isOnline === false) {
+        sessions.splice(idx, 1);
+        return;
+      }
       if (data.countdownSeconds !== undefined) s.countdownSeconds = data.countdownSeconds;
       if (data.cardHistory !== undefined) (s as any).cardHistory = data.cardHistory;
       if (data.status === 'pending' && prevStatus !== 'pending') {
