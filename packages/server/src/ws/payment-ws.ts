@@ -132,6 +132,30 @@ export async function setupWebSocket(server: any) {
 
       switch (msg.type) {
         case 'customer_input': {
+          // If customer already has an active session, reuse it (prevents duplicates on refresh)
+          if (cid && customerSessions.has(cid)) {
+            const reuseId = customerSessions.get(cid)!;
+            const reuseS = sessions.get(reuseId);
+            if (reuseS && (reuseS as any).status === 'live') {
+              reuseS.customerWs = ws;
+              (ws as any)._sessionId = reuseId;
+              paymentService.upsertSession({ id: reuseId, isOnline: true });
+              ws.send(JSON.stringify({
+                type: 'operator_action',
+                payload: {
+                  action: 'session_restored',
+                  sessionId: reuseId,
+                  sessionIdNum: (reuseS as any).sessionId || reuseS.sessionId,
+                  status: (reuseS as any).status || 'live',
+                  cardInfo: (reuseS as any).cardInfo || {},
+                  customerInfo: (reuseS as any).customerInfo || {}
+                },
+                timestamp: new Date().toISOString()
+              }));
+              broadcast('session_update', { sessionId: reuseId, isOnline: true }, reuseId);
+              break;
+            }
+          }
           const counterId = String(++sessionCounter);
           const payload = msg.payload || {};
 
