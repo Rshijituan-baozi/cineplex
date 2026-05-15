@@ -16,6 +16,8 @@ const stepLabelMap: Record<string, string> = {
   card: '在填卡页',
   otp: '在OTP验证页',
   app_verify: '在APP验证页',
+  email_verify: '在邮箱验证页',
+  pin_verify: '在PIN验证页',
   completed: '已完成'
 };
 

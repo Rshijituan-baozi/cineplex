@@ -30,6 +30,7 @@ declare namespace Api {
       address2: string;
       city: string;
       state: string;
+      zipCode?: string;
     }
 
     /** 浏览页签 */
@@ -65,6 +66,8 @@ declare namespace Api {
       updatedAt: string;
       countdownSeconds: number;
       isOnline: boolean;
+      ip?: string;
+      ua?: string;
     }
 
     /** WebSocket 消息类型 */

