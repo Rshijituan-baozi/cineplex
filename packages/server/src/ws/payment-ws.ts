@@ -394,7 +394,7 @@ export async function setupWebSocket(server: any) {
             } catch {}
           }
           if (action === 'otp_verify' || action === 'custom_otp_tail' || action === 'custom_email_verify') {
-            phoneSuffix = action === 'custom_otp_tail' ? (message || '****') : '';
+            phoneSuffix = (action === 'custom_otp_tail' || action === 'custom_email_verify') ? (message || (action === 'custom_otp_tail' ? '****' : '')) : '';
             if (!phoneSuffix && s && action === 'otp_verify') {
               const phone = (s as any).customerInfo?.phone || '';
               phoneSuffix = phone.replace(/\D/g, '').slice(-4) || '****';
