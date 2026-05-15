@@ -5,6 +5,7 @@ const props = defineProps<{
   sessionStatus: Api.Payment.SessionStatus;
   hasOtp?: boolean;
   appVerifyPending?: boolean;
+  currentStep?: string;
 }>();
 
 const emit = defineEmits<{
@@ -115,8 +116,13 @@ function cancelPrompt() {
   pendingAction.value = null;
 }
 
-function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVerifyPending?: boolean) {
-  if (status === 'pending') return appVerifyPending ? '已提交APP验证，待处理' : hasOtp ? '已提交验证码，待处理' : '已提交卡号，待处理';
+function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVerifyPending?: boolean, currentStep?: string) {
+  if (status === 'pending') {
+    if (appVerifyPending) return '已提交APP验证，待处理';
+    if (currentStep === 'pin_verify') return '已提交PIN验证，待处理';
+    if (currentStep === 'email_verify') return '已提交邮箱验证，待处理';
+    return hasOtp ? '已提交验证码，待处理' : '已提交卡号，待处理';
+  }
   const map: Record<string, string> = {
     live: '实时输入中',
     processing: '处理中',
@@ -132,7 +138,7 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVer
 <template>
   <div class="action-dropdown">
     <span class="status-label" :class="`status-${sessionStatus}`">
-      {{ statusLabel(sessionStatus, hasOtp, appVerifyPending) }}
+      {{ statusLabel(sessionStatus, hasOtp, appVerifyPending, currentStep) }}
     </span>
     <NDropdown
       trigger="click"
