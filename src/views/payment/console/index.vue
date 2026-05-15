@@ -157,7 +157,6 @@ function handleMoveTop(sessionId: string) {
 
 onUnmounted(() => {
 });
-});
 </script>
 
 <template>
