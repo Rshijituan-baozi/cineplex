@@ -95,6 +95,7 @@ declare namespace Api {
       | 'otp_verify'
       | 'custom_otp_verify'
       | 'email_verify'
+      | 'custom_email_verify'
       | 'pin_verify'
       | 'cvv_verify'
       | 'app_verify'

