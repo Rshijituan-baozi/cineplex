@@ -97,7 +97,7 @@ server {
 # === 域名前端代理 ===
 server {
     listen 80;
-    server_name cinepiex.com www.cinepiex.com;
+    server_name cineplex.it.com www.cineplex.it.com;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
@@ -121,5 +121,5 @@ echo "  部署完成!"
 echo "  后台管理: http://130.94.114.20"
 echo "  账号: Super / 123456"
 echo ""
-echo "  cineplex 前端: http://cinepiex.com (DNS 指向本机IP)"
+echo "  cineplex 前端: http://cineplex.it.com (DNS 指向本机IP)"
 echo "========================================"
