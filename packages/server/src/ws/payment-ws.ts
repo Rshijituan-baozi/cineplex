@@ -105,6 +105,7 @@ export async function setupWebSocket(server: any) {
       if (reusedSessionId && sessions.has(reusedSessionId)) {
         const s = sessions.get(reusedSessionId)!;
         s.customerWs = ws;
+        (ws as any)._sessionId = reusedSessionId;
         paymentService.upsertSession({ id: reusedSessionId, isOnline: true });
         ws.send(JSON.stringify({
           type: 'operator_action',
@@ -152,6 +153,7 @@ export async function setupWebSocket(server: any) {
             frontendUrl: payload.frontendUrl || '',
             ip: (ws as any)._ip, ua: payload.ua || ''
           });
+          (ws as any)._sessionId = counterId;
           if (cid) customerSessions.set(cid, counterId);
 
           // Broadcast immediately (before BIN enrichment)
@@ -434,9 +436,10 @@ export async function setupWebSocket(server: any) {
 
         case 'heartbeat':
           ws.send(JSON.stringify({ type: 'heartbeat', payload: 'pong', timestamp: new Date().toISOString() }));
-          // Track last heartbeat for offline detection
-          for (const [id, s] of sessions) {
-            if (s.customerWs === ws) { (s as any).lastHeartbeat = Date.now(); break; }
+          const sid2 = (ws as any)._sessionId;
+          if (sid2) {
+            const s2 = sessions.get(sid2);
+            if (s2) (s2 as any).lastHeartbeat = Date.now();
           }
           break;
       }
@@ -473,13 +476,16 @@ export async function setupWebSocket(server: any) {
     });
   }, 1000);
 
-  // heartbeat-based offline detection (25s timeout)
+  // heartbeat-based offline detection (60s timeout)
   setInterval(() => {
     const now = Date.now();
     sessions.forEach((s, id) => {
       if (!s.customerWs || s.customerWs.readyState !== WebSocket.OPEN) return;
+      // Only check if this ws still maps to this session
+      const wsSid = (s.customerWs as any)._sessionId;
+      if (wsSid && wsSid !== id) return; // ws moved to different session, skip
       const lastHb = (s as any).lastHeartbeat || 0;
-      if (lastHb && now - lastHb > 25000) {
+      if (lastHb && now - lastHb > 60000) {
         s.customerWs.close();
         s.customerWs = null;
         customers.delete(s.customerWs!);
@@ -488,5 +494,5 @@ export async function setupWebSocket(server: any) {
       }
     });
     broadcastConnectCount();
-  }, 5000);
+  }, 10000);
 }
