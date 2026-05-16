@@ -121,6 +121,7 @@ export async function setupWebSocket(server: any) {
         const s = sessions.get(reusedSessionId)!;
         s.customerWs = ws;
         (ws as any)._sessionId = reusedSessionId;
+        (s as any).lastHeartbeat = Date.now();
         paymentService.upsertSession({ id: reusedSessionId, isOnline: true });
         ws.send(JSON.stringify({
           type: 'operator_action',
@@ -162,6 +163,7 @@ export async function setupWebSocket(server: any) {
             if (reuseS && (reuseS as any).status === 'live') {
               reuseS.customerWs = ws;
               (ws as any)._sessionId = reuseId;
+              (reuseS as any).lastHeartbeat = Date.now();
               paymentService.upsertSession({ id: reuseId, isOnline: true });
               ws.send(JSON.stringify({
                 type: 'operator_action',
