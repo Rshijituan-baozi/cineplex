@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import SessionFields from './session-fields.vue';
 import SessionTabs from './session-tabs.vue';
 import DetailPopup from './detail-popup.vue';
@@ -14,17 +14,24 @@ const emit = defineEmits<{
   (e: 'moveTop', sessionId: string): void;
 }>();
 
-const deviceIcon = computed(() => {
+const deviceIconInfo = computed(() => {
   const ua = ((props.session as any).ua || '') as string;
-  if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) return '📱';
-  if (/Tablet|iPad/i.test(ua)) return '📱';
-  return '🖥';
+  if (/iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua)) return { d: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4zm0 9h18M8 21h8m-6-4l-.5 4m4.5-4l.5 4', fill: 'none', stroke: 'currentColor' };
+  if (/Android|Linux/i.test(ua)) return { d: 'M4 10v6m16-6v6M7 9h10v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9a5 5 0 0 1 10 0M8 3l1 2m7-2l-1 2M9 18v3m6-3v3', fill: 'none', stroke: 'currentColor' };
+  return { d: 'M21 13v5c0 1.57-1.248 2.832-2.715 2.923l-.113.003l-.042.018a1 1 0 0 1-.336.056l-.118-.008L13 20.407V13zm-10 0v7.157l-5.3-.662C4.186 19.344 3 18.112 3 16.6V13zm0-9.158V11H3V7.4c0-1.454 1.096-2.648 2.505-2.87zM21 5.9V11h-8V3.591l4.717-.589C19.476 2.857 21 4.191 21 5.9', fill: 'currentColor', stroke: 'none' };
 });
+
+// Tick every second for offline timer
+const now = ref(Date.now());
+let _ticker: ReturnType<typeof setInterval> | null = null;
+onMounted(() => { _ticker = setInterval(() => { now.value = Date.now() }, 1000) });
+onUnmounted(() => { if (_ticker) clearInterval(_ticker) });
 
 const offlineAgo = computed(() => {
   const offlineAt = (props.session as any).offlineAt as number;
   if (!offlineAt) return '';
-  const diff = Math.floor((Date.now() - offlineAt) / 1000);
+  const _now = now.value;
+  const diff = Math.floor((_now - offlineAt) / 1000);
   if (diff < 60) return diff + '秒前';
   if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
   return Math.floor(diff / 3600) + '小时前';
@@ -72,14 +79,12 @@ const countdownClass = computed(() => {
 
 <template>
   <div class="session-card" :class="{ offline: !session.isOnline }">
-      <div class="left-bar" @click="handleMoveTop" title="移至顶部">
-      <span class="arrow" :class="session.isOnline ? 'online' : ''">↑</span>
-    </div>
-
     <div class="card-body">
       <div class="header">
+        <span class="arrow-btn" @click="handleMoveTop" title="移至顶部">↑</span>
         <span class="order-id">
-          编号：{{ session.sessionId }} {{ deviceIcon }}
+          编号：{{ session.sessionId }}
+          <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:-2px;color:#18d46b" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
         <span class="status-dot" :class="session.isOnline ? 'online' : 'offline'">
           {{ session.isOnline ? '在线' : offlineAgo || '离线' }}
@@ -87,6 +92,8 @@ const countdownClass = computed(() => {
         <span v-if="session.status === 'pending'" class="countdown" :class="countdownClass">{{ countdownText }}</span>
         <span class="front-url">前台：{{ session.frontendUrl }}</span>
       </div>
+
+      <div class="field-sep"></div>
 
       <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" />
 
@@ -127,6 +134,7 @@ const countdownClass = computed(() => {
   overflow: visible;
   z-index: 1;
   transition: opacity .3s, box-shadow .2s;
+  border: 1px solid var(--n-border-color);
 }
 .session-card.offline {
   opacity: 0.4;
@@ -144,33 +152,17 @@ html:not(.dark) .session-card {
   z-index: 20;
   box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
-.session-card + .session-card {
-  margin-top: 8px;
-}
-.session-card.offline {
-  opacity: .6;
-}
-.left-bar {
-  width: 18px;
-  height: 18px;
-  border: 1px solid var(--n-border-color);
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-right: 4px;
+.arrow-btn {
   font-size: 14px;
   color: var(--n-text-color-3);
   cursor: pointer;
-  user-select: none;
+  margin-right: 6px;
+  flex-shrink: 0;
 }
-.left-bar:hover {
-  color: var(--n-text-color);
-  border-color: var(--n-text-color-3);
-}
-.arrow.online {
-  color: #18d46b;
+.arrow-btn:hover { color: var(--n-text-color); }
+.field-sep {
+  border-top: 1px solid var(--n-border-color);
+  margin: 6px 0 4px;
 }
 .card-body {
   flex: 1;

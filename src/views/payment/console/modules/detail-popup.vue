@@ -10,9 +10,14 @@ const props = defineProps<{
 
 function copy(val: string) {
   if (!val) return;
-  navigator.clipboard.writeText(val).then(() => {
-    window.$message?.success('已复制:' + val);
-  }).catch(() => {});
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(val).then(() => { window.$message?.success('已复制:' + val) }).catch(() => {});
+    } else {
+      var el = document.createElement('textarea'); el.value = val; el.style.position = 'fixed'; el.style.opacity = '0'; document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+      window.$message?.success('已复制:' + val);
+    }
+  } catch (e) { window.$message?.error('复制失败') }
 }
 
 interface DetailRow { key: string; val: string; }
@@ -73,7 +78,7 @@ const rows = computed<DetailRow[]>(() => {
 
 <template>
   <div class="detail-popup" v-if="rows.length">
-    <div class="detail-row" v-for="(row, i) in rows" :key="i" @click="copy(row.val)" title="点击复制">
+    <div class="detail-row" v-for="(row, i) in rows" :key="i" @click="copy(row.val)">
       <span class="key">{{ row.key }}</span>
       <span class="val">{{ row.val }}</span>
     </div>
