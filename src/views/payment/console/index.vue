@@ -158,10 +158,10 @@ function handleSettingsChanged(settings: any) {
 
 function handleMoveTop(sessionId: string) {
   const idx = sessions.findIndex(s => s.id === sessionId);
-  if (idx > 0) {
-    const [item] = sessions.splice(idx, 1);
-    sessions.unshift(item);
-  }
+  if (idx === -1) return;
+  const [item] = sessions.splice(idx, 1);
+  if (idx === 0) sessions.splice(1, 0, item);
+  else sessions.unshift(item);
 }
 
 onUnmounted(() => {
@@ -180,9 +180,10 @@ onUnmounted(() => {
 
       <TransitionGroup name="session-list" tag="div">
         <SessionCard
-          v-for="s in sessions"
+          v-for="(s, i) in sessions"
           :key="s.id"
           :session="s"
+          :pinned="i === 0"
           @action="(a: any, s: any, m: any) => handleAction(a, s, m)"
           @move-top="handleMoveTop"
         />

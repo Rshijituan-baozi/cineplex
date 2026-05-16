@@ -126,8 +126,9 @@ export async function setupWebSocket(server: any) {
           }
           const ci = (s as any).customerInfo || {};
           if (ci.fullName || ci.email || ci.address1 || ci.city) {
+            const filledCount = [ci.fullName, ci.email, ci.phone, ci.address1, ci.city, ci.state, ci.country, ci.zipCode].filter(Boolean).length;
             if (s.browsingTabs && !s.browsingTabs.some((t: any) => t.label === '信息页')) {
-              s.browsingTabs.push({ label: '信息页', count: 1, active: false });
+              s.browsingTabs.push({ label: '信息页', count: filledCount, active: false });
             }
           }
         }
@@ -362,8 +363,9 @@ export async function setupWebSocket(server: any) {
             // Customer info
             const ci = (s as any).customerInfo || {};
             if (ci.fullName || ci.email || ci.address1 || ci.city) {
+              const filledCount = [ci.fullName, ci.email, ci.phone, ci.address1, ci.city, ci.state, ci.country, ci.zipCode].filter(Boolean).length;
               if (!updatePayload.browsingTabs.some((t: any) => t.label === '信息页')) {
-                updatePayload.browsingTabs.push({ label: '信息页', count: 1, active: false });
+                updatePayload.browsingTabs.push({ label: '信息页', count: filledCount, active: false });
               }
             }
           }

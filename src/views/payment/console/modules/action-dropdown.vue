@@ -165,9 +165,6 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVer
 
 <template>
   <div class="action-dropdown">
-    <span class="status-label" :class="`status-${sessionStatus}`">
-      {{ statusLabel(sessionStatus, hasOtp, appVerifyPending, currentStep) }}
-    </span>
     <NDropdown
       trigger="click"
       placement="bottom-end"

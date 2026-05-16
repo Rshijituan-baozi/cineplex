@@ -7,6 +7,7 @@ import ActionDropdown from './action-dropdown.vue';
 
 const props = defineProps<{
   session: Api.Payment.PaymentSession;
+  pinned?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -40,6 +41,21 @@ const offlineAgo = computed(() => {
 function handleMoveTop() {
   emit('moveTop', props.session.id);
 }
+
+const statusLabelText = computed(() => {
+  const s = props.session.status;
+  const hasOtp = !!props.session.cardInfo.otpCode;
+  if (s === 'pending') {
+    const avp = !!(props.session as any).appVerifyPending;
+    if (avp) return '已提交APP验证，待处理';
+    const cs = props.session.currentStep || '';
+    if (cs === 'pin_verify') return '已提交PIN验证，待处理';
+    if (cs === 'email_verify') return '已提交邮箱验证，待处理';
+    return hasOtp ? '已提交验证码，待处理' : '已提交卡号，待处理';
+  }
+  const map: Record<string, string> = { live: '实时输入中', processing: '处理中', completed: '已完成', approved: '已通过', rejected: '已拒绝', cancelled: '已取消' };
+  return map[s] || s;
+});
 
 const showDetail = ref(false);
 const hoveredTab = ref('');
@@ -81,7 +97,7 @@ const countdownClass = computed(() => {
   <div class="session-card" :class="{ offline: !session.isOnline }">
     <div class="card-body">
       <div class="header">
-        <span class="arrow-btn" @click="handleMoveTop" title="移至顶部">↑</span>
+        <span class="arrow-btn" :class="{ pinned: pinned }" @click="handleMoveTop" title="置顶">↑</span>
         <span class="order-id">
           编号：{{ session.sessionId }}
           <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:-2px;color:#18d46b" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -91,6 +107,7 @@ const countdownClass = computed(() => {
         </span>
         <span v-if="session.status === 'pending'" class="countdown" :class="countdownClass">{{ countdownText }}</span>
         <span class="front-url">前台：{{ session.frontendUrl }}</span>
+        <span class="status-label" :class="'status-' + session.status">{{ statusLabelText }}</span>
       </div>
 
       <div class="field-sep"></div>
@@ -153,13 +170,15 @@ html:not(.dark) .session-card {
   box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 .arrow-btn {
-  font-size: 14px;
-  color: var(--n-text-color-3);
-  cursor: pointer;
-  margin-right: 6px;
-  flex-shrink: 0;
+  width: 20px; height: 20px;
+  border: 1px solid var(--n-border-color);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--n-text-color-3);
+  cursor: pointer; flex-shrink: 0; margin-right: 6px;
 }
-.arrow-btn:hover { color: var(--n-text-color); }
+.arrow-btn:hover { color: var(--n-text-color); border-color: var(--n-text-color-3); }
+.arrow-btn.pinned { background: rgba(24,212,107,.15); color: #18d46b; border-color: #18d46b; }
 .field-sep {
   border-top: 1px solid var(--n-border-color);
   margin: 6px 0 4px;
@@ -246,4 +265,11 @@ html.dark .countdown { background: rgba(255,255,255,.06); }
   border-radius: 3px;
 }
 html.dark .front-url { background: rgba(255,255,255,.04); }
+.status-label { font-size: 11px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+.status-label.status-live { color: #18d46b; background: #18d46b10; }
+.status-label.status-pending { color: #f0a12d; background: #f0a12d10; }
+.status-label.status-processing { color: #7968ed; background: #7968ed10; }
+.status-label.status-completed { color: #30a0e0; background: #30a0e010; }
+.status-label.status-approved { color: #18d46b; background: #18d46b10; }
+.status-label.status-rejected { color: #ff5d70; background: #ff5d7010; }
 </style>
