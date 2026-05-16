@@ -76,7 +76,10 @@ const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
   color: #fff;
 }
 .tab.active {
-  color: #33e07e;
+  color: var(--n-text-color);
+}
+.step-label {
+  color: var(--n-text-color-3);
   font-weight: bold;
 }
 .count {

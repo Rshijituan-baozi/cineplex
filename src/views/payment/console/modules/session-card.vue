@@ -112,7 +112,16 @@ const countdownClass = computed(() => {
 
       <div class="field-sep"></div>
 
-      <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" />
+      <div class="fields-row">
+        <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" />
+        <ActionDropdown
+          :session-status="session.status"
+          :has-otp="!!session.cardInfo.otpCode"
+          :app-verify-pending="!!(session as any).appVerifyPending"
+          :current-step="session.currentStep || ''"
+          @action="(a, m) => emit('action', a, session.id, m)"
+        />
+      </div>
 
       <div class="tabs-row" @mouseleave="onLeaveTabs">
         <SessionTabs :tabs="session.browsingTabs" :current-step="session.currentStep" @hover-tab="onHoverTab" />
@@ -126,14 +135,6 @@ const countdownClass = computed(() => {
           @mouseleave="onLeavePopup"
         />
       </div>
-
-      <ActionDropdown
-        :session-status="session.status"
-        :has-otp="!!session.cardInfo.otpCode"
-        :app-verify-pending="!!(session as any).appVerifyPending"
-        :current-step="session.currentStep || ''"
-        @action="(a, m) => emit('action', a, session.id, m)"
-      />
     </div>
   </div>
 </template>
@@ -151,7 +152,8 @@ const countdownClass = computed(() => {
   overflow: visible;
   z-index: 1;
   transition: opacity .3s, box-shadow .2s;
-  border: 1px solid var(--n-border-color);
+  border: 1px solid #f0f0f0;
+  background: rgb(var(--v-theme-surface));
 }
 .session-card.offline {
   opacity: 0.4;
@@ -182,6 +184,12 @@ html:not(.dark) .session-card {
 .field-sep {
   border-top: 1px solid var(--n-border-color);
   margin: 6px 0 4px;
+}
+.fields-row {
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.fields-row .action-dropdown {
+  flex-shrink: 0; margin-top: 0;
 }
 .card-body {
   flex: 1;
