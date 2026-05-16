@@ -91,7 +91,7 @@ const { connected, sendAction, ws } = usePaymentWs({
           duration: 4000
         });
       }
-    } else if (data.isOnline !== false && data.cardInfo && data.sessionId) {
+    } else if (data.isOnline !== false && data.sessionId) {
       // Session came back online but was filtered out on refresh — re-add it
       if (!_onlyCardFilter || !!(data.cardInfo?.cardNumber)) {
         sessions.unshift({

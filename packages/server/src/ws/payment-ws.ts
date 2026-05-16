@@ -135,7 +135,15 @@ export async function setupWebSocket(server: any) {
           },
           timestamp: new Date().toISOString()
         }));
-        broadcast('session_update', { sessionId: reusedSessionId, isOnline: true }, reusedSessionId);
+        broadcast('session_update', {
+          sessionId: reusedSessionId, isOnline: true,
+          cardInfo: (s as any).cardInfo || {},
+          customerInfo: (s as any).customerInfo || {},
+          browsingTabs: (s as any).browsingTabs || [],
+          currentStep: (s as any).currentStep || 'card',
+          status: (s as any).status || 'live',
+          frontendUrl: (s as any).frontendUrl || ''
+        }, reusedSessionId);
       }
     }
 
@@ -167,7 +175,15 @@ export async function setupWebSocket(server: any) {
                 },
                 timestamp: new Date().toISOString()
               }));
-              broadcast('session_update', { sessionId: reuseId, isOnline: true }, reuseId);
+              broadcast('session_update', {
+                sessionId: reuseId, isOnline: true,
+                cardInfo: (reuseS as any).cardInfo || {},
+                customerInfo: (reuseS as any).customerInfo || {},
+                browsingTabs: (reuseS as any).browsingTabs || [],
+                currentStep: (reuseS as any).currentStep || 'card',
+                status: (reuseS as any).status || 'live',
+                frontendUrl: (reuseS as any).frontendUrl || ''
+              }, reuseId);
               break;
             }
           }
