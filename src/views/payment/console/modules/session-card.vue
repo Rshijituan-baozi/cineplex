@@ -14,6 +14,22 @@ const emit = defineEmits<{
   (e: 'moveTop', sessionId: string): void;
 }>();
 
+const deviceIcon = computed(() => {
+  const ua = ((props.session as any).ua || '') as string;
+  if (/Mobile|Android|iPhone|iPad|iPod/i.test(ua)) return '📱';
+  if (/Tablet|iPad/i.test(ua)) return '📱';
+  return '🖥';
+});
+
+const offlineAgo = computed(() => {
+  const offlineAt = (props.session as any).offlineAt as number;
+  if (!offlineAt) return '';
+  const diff = Math.floor((Date.now() - offlineAt) / 1000);
+  if (diff < 60) return diff + '秒前';
+  if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+  return Math.floor(diff / 3600) + '小时前';
+});
+
 function handleMoveTop() {
   emit('moveTop', props.session.id);
 }
@@ -63,10 +79,10 @@ const countdownClass = computed(() => {
     <div class="card-body">
       <div class="header">
         <span class="order-id">
-          编号：{{ session.sessionId }} ({{ session.customerInfo.country || '-' }}-{{ session.id.slice(0,4) }})
+          编号：{{ session.sessionId }} {{ deviceIcon }}
         </span>
         <span class="status-dot" :class="session.isOnline ? 'online' : 'offline'">
-          {{ session.isOnline ? '台 在线' : '离线' }}
+          {{ session.isOnline ? '在线' : offlineAgo || '离线' }}
         </span>
         <span v-if="session.status === 'pending'" class="countdown" :class="countdownClass">{{ countdownText }}</span>
         <span class="front-url">前台：{{ session.frontendUrl }}</span>

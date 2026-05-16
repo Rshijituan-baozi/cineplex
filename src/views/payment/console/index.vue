@@ -55,7 +55,11 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.browsingTabs !== undefined) s.browsingTabs = data.browsingTabs;
       if (data.currentStep !== undefined) s.currentStep = data.currentStep;
       if (data.status !== undefined) s.status = data.status;
-      if (data.isOnline !== undefined) s.isOnline = data.isOnline;
+      if (data.isOnline !== undefined) {
+        s.isOnline = data.isOnline;
+        if (data.isOnline === false) (s as any).offlineAt = Date.now();
+        else (s as any).offlineAt = 0;
+      }
       if (data.countdownSeconds !== undefined) s.countdownSeconds = data.countdownSeconds;
       if (data.cardHistory !== undefined) (s as any).cardHistory = data.cardHistory;
       if (data.status === 'pending' && prevStatus !== 'pending') {

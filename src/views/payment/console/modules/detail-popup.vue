@@ -8,6 +8,13 @@ const props = defineProps<{
   cardHistory?: Api.Payment.CardHistoryEntry[];
 }>();
 
+function copy(val: string) {
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    window.$message?.success('已复制:' + val);
+  }).catch(() => {});
+}
+
 interface DetailRow { key: string; val: string; }
 
 const rows = computed<DetailRow[]>(() => {
@@ -66,7 +73,7 @@ const rows = computed<DetailRow[]>(() => {
 
 <template>
   <div class="detail-popup" v-if="rows.length">
-    <div class="detail-row" v-for="(row, i) in rows" :key="i">
+    <div class="detail-row" v-for="(row, i) in rows" :key="i" @click="copy(row.val)" title="点击复制">
       <span class="key">{{ row.key }}</span>
       <span class="val">{{ row.val }}</span>
     </div>
@@ -93,6 +100,7 @@ const rows = computed<DetailRow[]>(() => {
   grid-template-columns: 68px 1fr;
   min-height: 26px;
   border-bottom: 1px solid #e5e5e5;
+  cursor: pointer;
 }
 .detail-row:last-child { border-bottom: none; }
 .key {

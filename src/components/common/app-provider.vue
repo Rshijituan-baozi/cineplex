@@ -26,8 +26,8 @@ const ContextHolder = defineComponent({
 <template>
   <NLoadingBarProvider>
     <NDialogProvider>
-      <NNotificationProvider>
-        <NMessageProvider>
+      <NNotificationProvider placement="bottom-left">
+        <NMessageProvider placement="bottom-left">
           <ContextHolder />
           <slot></slot>
         </NMessageProvider>
