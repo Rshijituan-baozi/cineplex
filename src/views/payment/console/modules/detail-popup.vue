@@ -39,6 +39,7 @@ const rows = computed<DetailRow[]>(() => {
       { key: '地址', val: props.customerInfo.address1 },
       { key: '城市', val: props.customerInfo.city },
       { key: '州/省', val: props.customerInfo.state },
+      { key: '邮编', val: (props.customerInfo as any).zipCode },
     ].filter(r => r.val !== '' && r.val !== '-' && r.val != null);
     case '卡片页': return [
       { key: '卡类型', val: props.cardInfo.cardType },
