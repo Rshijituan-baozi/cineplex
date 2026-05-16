@@ -112,6 +112,10 @@ const countdownClass = computed(() => {
   z-index: 1;
   transition: opacity .3s, box-shadow .2s;
 }
+.session-card.offline {
+  opacity: 0.4;
+  pointer-events: none;
+}
 .session-card + .session-card {
   margin-top: 8px;
 }
