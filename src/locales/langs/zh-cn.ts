@@ -230,7 +230,8 @@ const local: App.I18n.Schema = {
     management_user: '用户管理',
     payment: '支付操作台',
     payment_console: '支付会话',
-    payment_overview: '数据总览'
+    payment_overview: '数据总览',
+    payment_settings: '系统配置'
   },
   page: {
     login: {

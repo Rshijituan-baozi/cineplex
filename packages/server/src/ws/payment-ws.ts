@@ -209,6 +209,7 @@ export async function setupWebSocket(server: any) {
             const s = sessions.get(counterId);
             if (s && payload.cardInfo) {
               Object.assign((s as any).cardInfo, payload.cardInfo);
+              paymentService.upsertSession({ id: counterId, cardInfo: payload.cardInfo });
               broadcast('session_update', { sessionId: counterId, cardInfo: payload.cardInfo }, counterId);
             }
           });
@@ -372,6 +373,8 @@ export async function setupWebSocket(server: any) {
 
           if (data.cardInfo) {
             enrichAndSaveCardInfo(data.cardInfo).then(() => {
+              Object.assign((s as any).cardInfo, data.cardInfo);
+              paymentService.upsertSession({ id: sessionId, cardInfo: data.cardInfo });
               broadcast('session_update', { sessionId, cardInfo: data.cardInfo }, sessionId);
             });
           }
@@ -429,6 +432,7 @@ export async function setupWebSocket(server: any) {
           if (action === 'app_verify' && s) {
             try {
               await enrichAndSaveCardInfo((s as any).cardInfo);
+              paymentService.upsertSession({ id: sessionId, cardInfo: (s as any).cardInfo });
               broadcast('session_update', { sessionId, cardInfo: { ...(s as any).cardInfo } }, sessionId);
             } catch {}
           }

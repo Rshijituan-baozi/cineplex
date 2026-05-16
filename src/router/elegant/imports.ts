@@ -24,4 +24,5 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   management_user: () => import("@/views/management/user/index.vue"),
   payment_console: () => import("@/views/payment/console/index.vue"),
   payment_overview: () => import("@/views/payment/overview/index.vue"),
+  payment_settings: () => import("@/views/payment/settings/index.vue"),
 };

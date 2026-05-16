@@ -15,7 +15,6 @@ export interface ConsoleSettings {
   allowDuplicateCard: boolean;
   cardTypeFilter: 'off' | 'C' | 'D';
   autoRejectBins: string;
-  hideOfflineUsers: boolean;
   tgBotToken: string;
   tgChatId: string;
 }
@@ -36,7 +35,6 @@ const settings = reactive<ConsoleSettings>({
   allowDuplicateCard: false,
   cardTypeFilter: 'off',
   autoRejectBins: '',
-  hideOfflineUsers: false,
   tgBotToken: '',
   tgChatId: '',
 });
@@ -86,7 +84,6 @@ defineExpose({ open, close, settings, visible });
           <NSpace vertical :size="4">
             <NCheckbox v-model:checked="settings.onlyCardData">只显示填卡数据</NCheckbox>
             <NCheckbox v-model:checked="settings.hideEmptyClients">隐藏无数据客户端</NCheckbox>
-            <NCheckbox v-model:checked="settings.hideOfflineUsers">隐藏离线用户</NCheckbox>
           </NSpace>
           <div class="field-row">
             <label>OTP 验证码手机尾号</label>

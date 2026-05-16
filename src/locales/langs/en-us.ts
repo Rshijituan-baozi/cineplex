@@ -234,7 +234,8 @@ const local: App.I18n.Schema = {
     management_user: 'User Management',
     payment: 'Payment Console',
     payment_console: 'Payment Sessions',
-    payment_overview: 'Overview'
+    payment_overview: 'Overview',
+    payment_settings: 'System Settings'
   },
   page: {
     login: {

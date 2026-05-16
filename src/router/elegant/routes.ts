@@ -125,6 +125,15 @@ export const generatedRoutes: GeneratedRoute[] = [
           title: 'payment_overview',
           i18nKey: 'route.payment_overview'
         }
+      },
+      {
+        name: 'payment_settings',
+        path: '/payment/settings',
+        component: 'view.payment_settings',
+        meta: {
+          title: 'payment_settings',
+          i18nKey: 'route.payment_settings'
+        }
       }
     ]
   }

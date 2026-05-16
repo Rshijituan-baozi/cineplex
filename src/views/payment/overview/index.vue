@@ -153,6 +153,14 @@ async function loadData() {
 }
 
 loadData();
+
+const showExport = ref(false);
+const exportFmt = ref<'csv' | 'json'>('csv');
+
+function doExport() {
+  window.open(`/api/payment/export?format=${exportFmt.value}`);
+  showExport.value = false;
+}
 </script>
 
 <template>
@@ -168,6 +176,7 @@ loadData();
       <NSelect v-model:value="cardStatusFilter" placeholder="筛选资料" :options="cardStatusOptions" style="width:140px" />
       <NSelect v-model:value="frontendFilter" placeholder="按前台" clearable :options="frontendOptions" style="width:160px" />
       <div class="toolbar-spacer" />
+      <NButton size="small" quaternary @click="showExport=true">📥 导出</NButton>
       <NPopover trigger="click" placement="bottom-end">
         <template #trigger><NButton size="small" quaternary>⚙ 列设置</NButton></template>
         <div class="col-popover">
@@ -193,6 +202,23 @@ loadData();
     </div>
 
     <SessionDetailModal v-if="selectedSession" :session="selectedSession" @close="selectedSession = null" />
+
+    <NModal :show="showExport" @update:show="(v:boolean)=>{if(!v)showExport=false}">
+      <NCard title="导出数据" :bordered="false" style="width:360px" role="dialog">
+        <NSpace vertical :size="8">
+          <NRadioGroup v-model:value="exportFmt">
+            <NSpace :size="16">
+              <NRadio value="csv">CSV格式</NRadio>
+              <NRadio value="json">JSON格式</NRadio>
+            </NSpace>
+          </NRadioGroup>
+          <NSpace justify="end">
+            <NButton @click="showExport=false">取消</NButton>
+            <NButton type="primary" @click="doExport">导出</NButton>
+          </NSpace>
+        </NSpace>
+      </NCard>
+    </NModal>
   </div>
 </template>
 

@@ -173,7 +173,8 @@ const routeMap: RouteMap = {
   "management_user": "/management/user",
   "payment": "/payment",
   "payment_console": "/payment/console",
-  "payment_overview": "/payment/overview"
+  "payment_overview": "/payment/overview",
+  "payment_settings": "/payment/settings"
 };
 
 /**

