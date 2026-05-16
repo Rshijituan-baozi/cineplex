@@ -114,7 +114,6 @@ const countdownClass = computed(() => {
 }
 .session-card.offline {
   opacity: 0.4;
-  pointer-events: none;
 }
 .session-card + .session-card {
   margin-top: 8px;
