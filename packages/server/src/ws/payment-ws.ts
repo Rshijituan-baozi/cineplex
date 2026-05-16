@@ -3,6 +3,12 @@ import * as paymentService from '../services/payment.service.js';
 import { lookupBIN } from '../bin/bin-lookup.js';
 import { queryOne } from '../database/connection.js';
 import { v4 as uuid } from 'uuid';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dir = dirname(fileURLToPath(import.meta.url));
+const SETTINGS_FILE = join(__dir, '..', '..', 'data', 'console-settings.json');
 
 const sessions = new Map<string, { customerWs?: WebSocket | null; id: string; sessionId: number }>();
 const operators = new Set<WebSocket>();
@@ -20,6 +26,22 @@ const consoleSettings = {
   tgBotToken: '',
   tgChatId: '',
 };
+
+// Load persisted settings
+try {
+  if (!existsSync(dirname(SETTINGS_FILE))) mkdirSync(dirname(SETTINGS_FILE), { recursive: true });
+  if (existsSync(SETTINGS_FILE)) {
+    const saved = JSON.parse(readFileSync(SETTINGS_FILE, 'utf8'));
+    Object.assign(consoleSettings, saved);
+    console.log('[WS] Loaded server settings');
+  }
+} catch {}
+
+function saveServerSettings() {
+  try {
+    writeFileSync(SETTINGS_FILE, JSON.stringify(consoleSettings, null, 2));
+  } catch {}
+}
 
 async function sendTgMessage(text: string) {
   const token = consoleSettings.tgBotToken;
@@ -479,6 +501,7 @@ export async function setupWebSocket(server: any) {
             consoleSettings.autoRejectBins = msg.payload.autoRejectBins.split(',').map((b: string) => b.trim()).filter(Boolean);
           }
           console.log('[Settings] Updated:', JSON.stringify(consoleSettings));
+          saveServerSettings();
           break;
         }
 
