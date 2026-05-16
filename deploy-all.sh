@@ -91,6 +91,24 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection "upgrade";
         proxy_set_header Host $host;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+}
+
+# === 域名前端代理 ===
+server {
+    listen 80;
+    server_name cineplex.it.com www.cineplex.it.com;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:9528/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
     }
 }
 
