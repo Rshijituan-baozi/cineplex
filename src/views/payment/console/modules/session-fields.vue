@@ -39,8 +39,8 @@ function copy(val: string) {
         <span class="ct-text">{{ cardIcon.type }}<span v-if="(cardInfo as any).cardCountry"> | {{ (cardInfo as any).cardCountry }}</span></span>
       </span>
     </div>
-    <div class="field" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)"><label>卡级：</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
-    <div class="field field-wide" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)"><label>发卡行：</label><span class="value">{{ cardInfo.bankName }}</span></div>
+    <div class="field card-information" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)"><label>卡级：</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
+    <div class="field field-wide card-information" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)"><label>发卡行：</label><span class="value">{{ cardInfo.bankName }}</span></div>
     <div class="field" v-if="customerInfo.phone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
     <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人：</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
     <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)">
@@ -66,4 +66,5 @@ html.dark .value { background: bottom; border-color: #d0d4f129; }
 .value-orange { background: #f0a12d; border-color: #ffb545; color: #fff; font-weight: bold; }
 .card-type-badge { background: transparent; font-weight: bold; display: flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid; }
 .ct-text { margin-left: 2px; }
+.card-information .value { height: 24px; color: var(--n-text-color); text-overflow: ellipsis; white-space: nowrap; text-align: center; border: 1px solid #2f2b3d29; border-radius: .25rem; padding: 0 8px; font-size: 13px; line-height: 24px; display: block; overflow: hidden; }
 </style>
