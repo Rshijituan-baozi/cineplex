@@ -14,6 +14,8 @@ html {
   color: rgb(var(--base-text-color));
 }
 
-html.dark body {
-  background: #1C1C1C;
+html.dark body,
+html.dark #app,
+html.dark {
+  background: #101828;
 }
