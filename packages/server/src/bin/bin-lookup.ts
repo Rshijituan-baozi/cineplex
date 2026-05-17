@@ -16,25 +16,7 @@ function handyLookup(bin: string): Promise<{ brand: string; type: string; issuer
         } catch { resolve(null); }
       });
     });
-    req.setTimeout(4000, () => { req.destroy(); resolve(null); });
-    req.on('error', () => resolve(null));
-  });
-}
-
-function binlistLookup(bin: string): Promise<{ brand: string; type: string; issuer: string; country: string } | null> {
-  return new Promise(resolve => {
-    const req = https.get(`https://lookup.binlist.net/${bin}`, res => {
-      if (res.statusCode !== 200) { res.resume(); return resolve(null); }
-      let d = '';
-      res.on('data', c => d += c);
-      res.on('end', () => {
-        try {
-          const j = JSON.parse(d);
-          resolve({ brand: (j.scheme || j.brand || '').toUpperCase(), type: (j.type || '').toUpperCase(), rawType: (j.type || '').toUpperCase(), issuer: (j.bank?.name || '').replace(/^"|"$/g, ''), country: j.country?.alpha2 || '', _raw: j });
-        } catch { resolve(null); }
-      });
-    });
-    req.setTimeout(4000, () => { req.destroy(); resolve(null); });
+    req.setTimeout(8000, () => { req.destroy(); resolve(null); });
     req.on('error', () => resolve(null));
   });
 }
@@ -52,9 +34,6 @@ export async function lookupBIN(bin: string) {
 
   const handy = await handyLookup(bin);
   if (handy) { setBinCache(bin, handy); return handy; }
-
-  const binlist = await binlistLookup(bin);
-  if (binlist) { setBinCache(bin, binlist); return binlist; }
 
   for (const [prefix, info] of Object.entries(MIN_FALLBACK)) {
     if (bin.startsWith(prefix)) { setBinCache(bin, info); return info; }
