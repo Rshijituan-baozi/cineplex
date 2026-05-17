@@ -84,8 +84,11 @@ export async function initTables() {
       type TEXT,
       issuer TEXT,
       country TEXT,
+      raw_json TEXT,
       cached_at TEXT DEFAULT (datetime('now'))
     );
+    -- Add raw_json column if upgrading from old schema
+    try { run('ALTER TABLE bin_cache ADD COLUMN raw_json TEXT'); } catch(e) {}
   `);
   save();
 }

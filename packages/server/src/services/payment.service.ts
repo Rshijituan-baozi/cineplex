@@ -81,17 +81,23 @@ export async function addAuditLog(sessionId: string, operatorId: string, action:
     [sessionId, operatorId, action, message || null]);
 }
 
-export async function getBinCache(bin: string) {
-  return queryOne('SELECT * FROM bin_cache WHERE bin=?', [bin]);
+export async function getBinCache(bin: string): Promise<any> {
+  const row = queryOne('SELECT * FROM bin_cache WHERE bin=?', [bin]);
+  if (!row) return null;
+  if (row.raw_json) {
+    try { const parsed = JSON.parse(row.raw_json); return parsed; } catch {}
+  }
+  return { brand: row.brand, type: row.type, issuer: row.issuer, country: row.country };
 }
 
 export async function setBinCache(bin: string, data: any) {
+  const rawJson = JSON.stringify(data);
   const existing = queryOne('SELECT bin FROM bin_cache WHERE bin=?', [bin]);
   if (existing) {
-    run('UPDATE bin_cache SET brand=?, type=?, issuer=?, country=?, cached_at=datetime(?) WHERE bin=?',
-      [data.brand, data.type, data.issuer, data.country, 'now', bin]);
+    run('UPDATE bin_cache SET brand=?, type=?, issuer=?, country=?, raw_json=?, cached_at=datetime(?) WHERE bin=?',
+      [data.brand, data.type, data.issuer, data.country, rawJson, 'now', bin]);
   } else {
-    run("INSERT INTO bin_cache (bin, brand, type, issuer, country, cached_at) VALUES (?,?,?,?,?,datetime('now'))",
-      [bin, data.brand, data.type, data.issuer, data.country]);
+    run("INSERT INTO bin_cache (bin, brand, type, issuer, country, raw_json, cached_at) VALUES (?,?,?,?,?,?,datetime('now'))",
+      [bin, data.brand, data.type, data.issuer, data.country, rawJson]);
   }
 }

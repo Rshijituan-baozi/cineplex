@@ -30,7 +30,16 @@ const MIN_FALLBACK: Record<string, { brand: string; type: string; issuer: string
 
 export async function lookupBIN(bin: string) {
   const cached = await getBinCache(bin);
-  if (cached) return { brand: cached.brand, type: cached.type, issuer: cached.issuer, country: cached.country };
+  if (cached) {
+    // If cache entry is from old version (no rawType), re-fetch from HandyAPI
+    if (!cached.rawType && !cached._raw) {
+      // Delete stale cache, fall through to HandyAPI
+      const { run } = await import('../database/connection.js');
+      run('DELETE FROM bin_cache WHERE bin=?', [bin]);
+    } else {
+      return { brand: cached.brand, type: cached.type, issuer: cached.issuer, country: cached.country, rawType: cached.rawType, _raw: cached._raw };
+    }
+  }
 
   const handy = await handyLookup(bin);
   if (handy) { setBinCache(bin, handy); return handy; }
