@@ -75,13 +75,7 @@ const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
 .tab:hover {
   color: #fff;
 }
-.tab.active {
-  color: var(--n-text-color);
-}
-.step-label {
-  color: var(--n-text-color-3);
-  font-weight: bold;
-}
+.tab { color: #a7adc4; cursor: pointer; height: 22px; line-height: 22px; }
 .count {
   color: #9ca4bd;
 }

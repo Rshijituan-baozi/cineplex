@@ -199,7 +199,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   min-height: calc(100vh - 120px);
-  background: #2F2B3DAD;
+  background: #f8f7fa;
 }
 .console-toolbar {
   display: flex;

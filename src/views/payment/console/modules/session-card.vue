@@ -186,10 +186,10 @@ html:not(.dark) .session-card {
   margin: 6px 0 4px;
 }
 .fields-row {
-  display: flex; align-items: flex-start; gap: 8px;
+  display: flex; align-items: center; gap: 8px;
 }
 .fields-row .action-dropdown {
-  flex-shrink: 0; margin-top: 0;
+  flex-shrink: 0;
 }
 .card-body {
   flex: 1;

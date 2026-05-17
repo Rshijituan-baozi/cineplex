@@ -30,11 +30,11 @@ function copy(val: string) {
 
 <template>
   <div class="session-fields">
-    <div class="field" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)">
+    <div class="field field-wide" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)">
       <label>卡类型</label>
       <span class="value card-type-badge" :style="{ color: cardIcon.color, borderColor: cardIcon.color }">
-        <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:-2px"><path :stroke="cardIcon.color" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm0 2h18M7 15h.01M11 15h2"/></svg>
-        {{ cardIcon.type }} | {{ cardInfo.cardType }}
+        <svg width="18" height="18" viewBox="0 0 24 24"><path :stroke="cardIcon.color" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm0 2h18M7 15h.01M11 15h2"/></svg>
+        <span class="ct-text">{{ cardIcon.type }}<span v-if="(cardInfo as any).cardCountry"> | {{ (cardInfo as any).cardCountry }}</span></span>
       </span>
     </div>
     <div class="field" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)"><label>卡级</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
@@ -61,5 +61,6 @@ function copy(val: string) {
 html.dark .value { background: rgba(255,255,255,.06); }
 .value-green { background: #48be44; border-color: #56d150; color: #fff; font-weight: bold; }
 .value-orange { background: #f0a12d; border-color: #ffb545; color: #fff; font-weight: bold; }
-.card-type-badge { background: transparent; font-weight: bold; }
+.card-type-badge { background: transparent; font-weight: bold; display: flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid; }
+.ct-text { margin-left: 2px; }
 </style>
