@@ -30,9 +30,8 @@ const MIN_FALLBACK: Record<string, { brand: string; type: string; issuer: string
 
 export async function lookupBIN(bin: string) {
   const cached = await getBinCache(bin);
-  if (cached) {
-    // Cache hit — always return what we have; API endpoint will fill gaps
-    return { brand: cached.brand, type: cached.type, issuer: cached.issuer, country: cached.country, rawType: cached.rawType || '', _raw: cached._raw || null };
+  if (cached && cached.rawType) {
+    return { brand: cached.brand, type: cached.type, issuer: cached.issuer, country: cached.country, rawType: cached.rawType, _raw: cached._raw || null };
   }
 
   const handy = await handyLookup(bin);
