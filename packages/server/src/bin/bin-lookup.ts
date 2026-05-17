@@ -11,7 +11,7 @@ function handyLookup(bin: string): Promise<{ brand: string; type: string; issuer
         try {
           const j = JSON.parse(d);
           if (j.Status === 'SUCCESS') {
-            resolve({ brand: (j.Scheme || '').toUpperCase(), type: (j.CardTier || j.Type || '').toUpperCase(), issuer: (j.Issuer || ''), country: (j.Country?.Name || j.Country?.A2 || '') });
+            resolve({ brand: (j.Scheme || '').toUpperCase(), type: (j.CardTier || j.Type || '').toUpperCase(), issuer: (j.Issuer || ''), country: (j.Country?.A2 || j.Country?.Name || '') });
           } else { resolve(null); }
         } catch { resolve(null); }
       });

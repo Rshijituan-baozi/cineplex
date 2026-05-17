@@ -279,12 +279,12 @@ html.dark .countdown { background: rgba(255,255,255,.06); }
 .front-url {
   color: var(--n-text-color-3);
   font-size: 12px;
-  background: rgba(128,128,128,.08);
-  border: 1px solid var(--n-border-color);
+  border: 1px solid rgba(47, 43, 61, 0.16);
   padding: 0 10px;
   border-radius: 3px;
 }
-html.dark .front-url { background: rgba(255,255,255,.04); }
+html.dark .front-url { background: #ffffff00; border: 1px solid rgba(208, 212, 241, 0.16); }
+html.dark .action-dropdown .n-button--info-type { --n-text-color: #fff; --n-text-color-hover: #fff; --n-text-color-pressed: #fff; --n-text-color-focus: #fff; --n-text-color-disabled: #fff; }
 .status-label { font-size: 11px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
 .status-label.status-live { color: #18d46b; background: #18d46b10; }
 .status-label.status-pending { color: #f0a12d; background: #f0a12d10; }
