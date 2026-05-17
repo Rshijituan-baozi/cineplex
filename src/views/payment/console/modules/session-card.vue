@@ -190,10 +190,10 @@ html.dark .arrow-btn { border-color: rgba(255,255,255,.16); }
   margin: 6px 0 4px;
 }
 .fields-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
 }
 .fields-row .action-dropdown {
-  flex-shrink: 0;
+  flex-shrink: 0; margin-top: 18px;
 }
 .tabs-row {
   position: relative;
