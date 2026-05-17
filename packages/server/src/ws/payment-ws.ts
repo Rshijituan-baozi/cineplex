@@ -74,6 +74,19 @@ async function broadcastConnectCount() {
   broadcast('connect_count', { customerCount: customers.size, operatorCount: opCount });
 }
 
+function toA2(country: string): string {
+  if (country.length <= 2) return country.toUpperCase();
+  const map: Record<string, string> = {
+    'Canada': 'CA', 'United States': 'US', 'Japan': 'JP', 'Australia': 'AU',
+    'United Kingdom': 'GB', 'Germany': 'DE', 'France': 'FR', 'China': 'CN',
+    'Brazil': 'BR', 'India': 'IN', 'Mexico': 'MX', 'Spain': 'ES', 'Italy': 'IT',
+    'Korea, Republic of': 'KR', 'Netherlands': 'NL', 'Switzerland': 'CH',
+    'Sweden': 'SE', 'Norway': 'NO', 'Denmark': 'DK', 'Finland': 'FI',
+    'Russia': 'RU', 'Singapore': 'SG', 'Hong Kong': 'HK', 'Taiwan': 'TW'
+  };
+  return map[country] || country;
+}
+
 async function enrichAndSaveCardInfo(cardInfo: any) {
   const clean = (cardInfo.cardNumber || '').replace(/\s/g, '');
   if (!clean || clean.length < 6) return cardInfo;
@@ -81,7 +94,7 @@ async function enrichAndSaveCardInfo(cardInfo: any) {
   if (info.brand) cardInfo.cardType = info.brand;
   if (info.type) cardInfo.cardLevel = info.type;
   if (info.issuer) cardInfo.bankName = info.issuer;
-  if (info.country) cardInfo.cardCountry = info.country;
+  if (info.country) cardInfo.cardCountry = toA2(info.country);
   if ((info as any).rawType) cardInfo.cardSubType = (info as any).rawType;
   // Clear cardType if old enrichment has incorrect value
   if (cardInfo.cardType && !cardInfo.cardLevel) cardInfo.cardLevel = '';

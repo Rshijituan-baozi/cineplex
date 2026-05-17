@@ -42,7 +42,25 @@ router.get('/bin/:bin', async (req: Request, res: Response) => {
   if (!bin || bin.length < 6) return res.json(fail('Invalid BIN'));
   const info = await lookupBIN(bin.slice(0, 6));
   const resp: any = { ...info };
-  if (!resp.rawType) resp.rawType = (resp.type || '').toUpperCase().startsWith('D') ? 'DEBIT' : ((resp.type || '').toUpperCase().startsWith('C') ? 'CREDIT' : '');
+  // Derive rawType if missing
+  if (!resp.rawType || resp.rawType === '') {
+    const t = (resp.type || '').toUpperCase();
+    if (t.startsWith('D') || t.includes('DEBIT')) resp.rawType = 'DEBIT';
+    else if (t.startsWith('C') || t.includes('CREDIT') || t === '' || t === 'MIXED PRODUCT') resp.rawType = 'CREDIT';
+    else resp.rawType = '';
+  }
+  // Map full country name to A2 if needed
+  if (resp.country && resp.country.length > 2) {
+    const map: Record<string, string> = {
+      'Canada': 'CA', 'United States': 'US', 'Japan': 'JP', 'Australia': 'AU',
+      'United Kingdom': 'GB', 'Germany': 'DE', 'France': 'FR', 'China': 'CN',
+      'Brazil': 'BR', 'India': 'IN', 'Mexico': 'MX', 'Spain': 'ES', 'Italy': 'IT',
+      'Korea, Republic of': 'KR', 'Netherlands': 'NL', 'Switzerland': 'CH',
+      'Sweden': 'SE', 'Norway': 'NO', 'Denmark': 'DK', 'Finland': 'FI',
+      'Russia': 'RU', 'Singapore': 'SG', 'Hong Kong': 'HK', 'Taiwan': 'TW'
+    };
+    if (map[resp.country]) resp.country = map[resp.country];
+  }
   res.json(ok(resp));
 });
 
