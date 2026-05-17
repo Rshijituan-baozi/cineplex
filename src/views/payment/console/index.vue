@@ -164,9 +164,8 @@ function handleMoveTop(sessionId: string) {
   if ((item as any).pinned) {
     sessions.unshift(item);
   } else {
-    // Unpin: move to after all pinned items
-    const pinnedCount = sessions.filter(x => (x as any).pinned).length;
-    sessions.splice(pinnedCount, 0, item);
+    // Unpin: move to end
+    sessions.push(item);
   }
 }
 

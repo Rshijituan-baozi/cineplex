@@ -59,11 +59,22 @@ const statusLabelText = computed(() => {
 
 const showDetail = ref(false);
 const hoveredTab = ref('');
+const popupLeft = ref(22);
+const popupTop = ref(26);
 let hideTimer: ReturnType<typeof setTimeout> | null = null;
 
-function onHoverTab(label: string) {
+function onHoverTab(label: string, evt: MouseEvent) {
   hoveredTab.value = label;
   showDetail.value = true;
+  const target = evt.currentTarget as HTMLElement;
+  if (target) {
+    const rect = target.getBoundingClientRect();
+    const parent = target.closest('.tabs-row')?.getBoundingClientRect();
+    if (parent) {
+      popupLeft.value = rect.left - parent.left;
+      popupTop.value = rect.bottom - parent.top + 2;
+    }
+  }
   if (hideTimer) clearTimeout(hideTimer);
 }
 function onLeaveTabs() {
@@ -131,6 +142,7 @@ const countdownClass = computed(() => {
         <SessionTabs :tabs="session.browsingTabs" :current-step="session.currentStep" @hover-tab="onHoverTab" />
         <DetailPopup
           v-show="showDetail && hoveredTab"
+          :style="{ left: popupLeft + 'px', top: popupTop + 'px' }"
           :tab-label="hoveredTab"
           :customer-info="session.customerInfo"
           :card-info="session.cardInfo"

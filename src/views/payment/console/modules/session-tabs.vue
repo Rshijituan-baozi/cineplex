@@ -7,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'hoverTab', label: string): void;
+  (e: 'hoverTab', label: string, event: MouseEvent): void;
 }>();
 
 const stepLabelMap: Record<string, string> = {
@@ -33,7 +33,7 @@ const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
       <span
         class="tab"
         :class="{ active: tab.active }"
-        @mouseenter="emit('hoverTab', tab.label)"
+        @mouseenter="emit('hoverTab', tab.label, $event)"
       >
         {{ tab.label }}
         <span class="count">({{ tab.count }})</span>
