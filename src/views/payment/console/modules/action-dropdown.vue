@@ -194,9 +194,6 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVer
 
 <style scoped>
 .action-dropdown {
-  position: absolute;
-  right: 8px;
-  top: 8px;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
