@@ -195,6 +195,9 @@ html.dark .arrow-btn { border-color: rgba(255,255,255,.16); }
 .fields-row .action-dropdown {
   flex-shrink: 0;
 }
+.tabs-row {
+  position: relative;
+}
 .card-body {
   flex: 1;
   min-width: 0;

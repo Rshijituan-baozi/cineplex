@@ -89,7 +89,7 @@ const rows = computed<DetailRow[]>(() => {
 .detail-popup {
   position: absolute;
   left: 22px;
-  top: 96px;
+  top: 26px;
   min-width: 220px;
   max-width: 420px;
   background: #fff;

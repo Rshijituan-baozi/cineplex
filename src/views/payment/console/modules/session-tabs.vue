@@ -44,9 +44,6 @@ const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
 
 <style scoped>
 .session-tabs {
-  position: absolute;
-  left: 22px;
-  top: 66px;
   height: 24px;
   display: flex;
   align-items: center;
@@ -54,6 +51,8 @@ const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
   font-size: 12px;
   white-space: nowrap;
   z-index: 10;
+  margin-top: 4px;
+  margin-left: 22px;
 }
 .step-label {
   color: #33e07e;
