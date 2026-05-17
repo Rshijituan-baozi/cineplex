@@ -97,7 +97,9 @@ const countdownClass = computed(() => {
   <div class="session-card" :class="{ offline: !session.isOnline }">
     <div class="card-body">
       <div class="header">
-        <span class="arrow-btn" :class="{ pinned: pinned }" @click="handleMoveTop" title="置顶">↑</span>
+        <span class="arrow-btn" :class="{ pinned: pinned }" @click="handleMoveTop" title="置顶">
+          <svg width="16" height="16" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 5v14m6-8l-6-6m-6 6l6-6"/></svg>
+        </span>
         <span class="order-id">
           编号：{{ session.sessionId }}
           <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:-2px;color:#18d46b" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -165,22 +167,23 @@ html.dark .session-card {
   background: rgb(43, 48, 69);
 }
 html:not(.dark) .session-card {
-  background: rgb(221 220 220 / 25%);
+  background: #fcfcfc;
 }
 .session-card:hover {
   z-index: 20;
   box-shadow: 0 2px 8px rgba(0,0,0,.12);
 }
 .arrow-btn {
-  width: 20px; height: 20px;
-  border: 1px solid var(--n-border-color);
-  border-radius: 3px;
+  width: 24px; height: 24px;
+  padding: 0 3px;
+  border: 1px solid rgba(47,43,61,.16);
+  border-radius: .25rem;
   display: flex; align-items: center; justify-content: center;
   font-size: 14px; color: var(--n-text-color-3);
   cursor: pointer; flex-shrink: 0; margin-right: 6px;
 }
 .arrow-btn:hover { color: var(--n-text-color); border-color: var(--n-text-color-3); }
-.arrow-btn.pinned { background: rgba(24,212,107,.15); color: #18d46b; border-color: #18d46b; }
+.arrow-btn.pinned { background: #424242; color: #fdfdfd; border-color: #424242; }
 .field-sep {
   border-top: 1px solid var(--n-border-color);
   margin: 6px 0 4px;

