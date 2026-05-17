@@ -80,8 +80,9 @@ export const themeSettings: App.Theme.ThemeSetting = {
     },
     dark: {
       colors: {
-        container: 'rgb(28, 28, 28)',
-        layout: 'rgb(18, 18, 18)',
+        container: 'rgb(16, 24, 40)',
+        layout: 'rgb(16, 24, 40)',
+        inverted: 'rgb(16, 24, 40)',
         'base-text': 'rgb(224, 224, 224)'
       }
     }
