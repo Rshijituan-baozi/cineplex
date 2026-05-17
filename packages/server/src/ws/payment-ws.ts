@@ -290,6 +290,8 @@ export async function setupWebSocket(server: any) {
               delete data.cardInfo.bankName;
               delete data.cardInfo.cardType;
               delete data.cardInfo.cardLevel;
+              delete data.cardInfo.cardSubType;
+              delete data.cardInfo.cardCountry;
             }
             s.cardInfo = { ...s.cardInfo, ...data.cardInfo };
           }
