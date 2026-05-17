@@ -184,6 +184,7 @@ html:not(.dark) .session-card {
 }
 .arrow-btn:hover { color: var(--n-text-color); border-color: var(--n-text-color-3); }
 .arrow-btn.pinned { background: #424242; color: #fdfdfd; border-color: #424242; }
+html.dark .arrow-btn { border-color: rgba(255,255,255,.16); }
 .field-sep {
   border-top: 1px solid var(--n-border-color);
   margin: 6px 0 4px;

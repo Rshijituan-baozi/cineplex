@@ -50,14 +50,14 @@ function copy(val: string) {
 
 <style scoped>
 .session-fields {
-  display: flex; align-items: flex-start; gap: 8px; flex-wrap: nowrap;
-  padding-left: 22px; height: 34px; overflow: hidden; flex-shrink: 0;
+  display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap;
+  padding-left: 22px; min-height: 34px; flex-shrink: 0;
 }
 .field { min-width: 62px; flex-shrink: 0; cursor: pointer; }
 .field-wide { min-width: 110px; }
 .field-card { min-width: 130px; }
 .field label { display: block; color: var(--n-text-color-3); font-size: 12px; margin-bottom: 4px; line-height: 12px; }
-.value { display: block; min-height: 17px; line-height: 17px; background: rgba(128,128,128,.12); border: 1px solid var(--n-border-color); color: var(--n-text-color); border-radius: 3px; padding: 0 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.value { display: block; min-height: 17px; line-height: 17px; background: rgba(128,128,128,.12); border: 1px solid var(--n-border-color); color: var(--n-text-color); border-radius: 3px; padding: 0 6px; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
 html.dark .value { background: rgba(255,255,255,.06); }
 .value-green { background: #48be44; border-color: #56d150; color: #fff; font-weight: bold; }
 .value-orange { background: #f0a12d; border-color: #ffb545; color: #fff; font-weight: bold; }
