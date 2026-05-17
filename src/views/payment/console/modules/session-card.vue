@@ -154,7 +154,7 @@ const countdownClass = computed(() => {
   overflow: visible;
   z-index: 1;
   transition: opacity .3s, box-shadow .2s;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #3f3e3e40;
   background: rgb(var(--v-theme-surface));
 }
 .session-card.offline {
@@ -189,7 +189,7 @@ html:not(.dark) .session-card {
   margin: 6px 0 4px;
 }
 .fields-row {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
 .fields-row .action-dropdown {
   flex-shrink: 0;
