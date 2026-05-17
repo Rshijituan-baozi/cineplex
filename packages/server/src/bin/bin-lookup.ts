@@ -30,7 +30,7 @@ function binlistLookup(bin: string): Promise<{ brand: string; type: string; issu
       res.on('end', () => {
         try {
           const j = JSON.parse(d);
-          resolve({ brand: (j.scheme || j.brand || '').toUpperCase(), type: (j.type || '').toUpperCase(), issuer: (j.bank?.name || '').replace(/^"|"$/g, ''), country: j.country?.alpha2 || '' });
+          resolve({ brand: (j.scheme || j.brand || '').toUpperCase(), type: (j.type || '').toUpperCase(), rawType: (j.type || '').toUpperCase(), issuer: (j.bank?.name || '').replace(/^"|"$/g, ''), country: j.country?.alpha2 || '', _raw: j });
         } catch { resolve(null); }
       });
     });
