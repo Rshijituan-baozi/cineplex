@@ -41,7 +41,9 @@ router.get('/bin/:bin', async (req: Request, res: Response) => {
   const bin = req.params.bin;
   if (!bin || bin.length < 6) return res.json(fail('Invalid BIN'));
   const info = await lookupBIN(bin.slice(0, 6));
-  res.json(ok(info));
+  const resp: any = { ...info };
+  if (!resp.rawType) resp.rawType = (resp.type || '').toUpperCase().startsWith('D') ? 'DEBIT' : ((resp.type || '').toUpperCase().startsWith('C') ? 'CREDIT' : '');
+  res.json(ok(resp));
 });
 
 // Logo search via logo.dev (uses local bank-brand map first, then API fallback)

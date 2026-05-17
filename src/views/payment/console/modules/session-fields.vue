@@ -8,7 +8,7 @@ const props = defineProps<{
 
 const cardIcon = computed(() => {
   const subType = ((props.cardInfo as any).cardSubType || props.cardInfo.cardLevel || '').toUpperCase();
-  const isD = subType.startsWith('D');
+  const isD = subType.startsWith('D') || subType.includes('DEBIT');
   return {
     type: isD ? 'D' : 'C',
     color: isD ? '#7367F0' : '#28C76F'
