@@ -94,4 +94,14 @@ export const themeSettings: App.Theme.ThemeSetting = {
  *
  * If publish new version, use `overrideThemeSettings` to override certain theme settings
  */
-export const overrideThemeSettings: Partial<App.Theme.ThemeSetting> = {};
+export const overrideThemeSettings: Partial<App.Theme.ThemeSetting> = {
+  tokens: {
+    dark: {
+      colors: {
+        container: 'rgb(16, 24, 40)',
+        layout: 'rgb(16, 24, 40)',
+        inverted: 'rgb(16, 24, 40)'
+      }
+    }
+  }
+};
