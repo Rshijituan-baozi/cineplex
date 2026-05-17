@@ -82,6 +82,10 @@ async function enrichAndSaveCardInfo(cardInfo: any) {
   if (info.type) cardInfo.cardLevel = info.type;
   if (info.issuer) cardInfo.bankName = info.issuer;
   if (info.country) cardInfo.cardCountry = info.country;
+  if ((info as any).rawType) cardInfo.cardSubType = (info as any).rawType;
+  // Clear cardType if old enrichment has incorrect value
+  if (cardInfo.cardType && !cardInfo.cardLevel) cardInfo.cardLevel = '';
+
   return cardInfo;
 }
 
