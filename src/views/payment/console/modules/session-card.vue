@@ -89,7 +89,7 @@ function onLeavePopup() {
 
 const countdownText = computed(() => {
   if (props.session.status !== 'pending') return '';
-  const s = props.session.countdownSeconds;
+  const s = Math.max(0, props.session.countdownSeconds || 0);
   if (s <= 0) return '⌛ 超时未操作';
   const m = Math.floor(s / 60);
   const sec = s % 60;
@@ -173,6 +173,9 @@ const countdownClass = computed(() => {
 }
 .session-card.offline {
   opacity: 0.4;
+}
+.session-card.offline .detail-popup {
+  opacity: 1;
 }
 .session-card + .session-card {
   margin-top: 8px;
@@ -302,9 +305,9 @@ html.dark .action-dropdown .n-button--info-type { --n-text-color: #fff; --n-text
   background-color: #909399;
   color: #fff;
 }
-.status-label { font-size: 12px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+.status-label { font-size: 13px; padding: 1px 6px; border-radius: 3px; white-space: nowrap; flex-shrink: 0; margin-left: auto; }
 .status-label.status-live { color: #18d46b; background: #18d46b10; }
-.status-label.status-pending { color: #f0a12d; background: #f0a12d10; }
+.status-label.status-pending { color: #f0412d; background: #f0a12d10; }
 .status-label.status-processing { color: #7968ed; background: #7968ed10; }
 .status-label.status-completed { color: #30a0e0; background: #30a0e010; }
 .status-label.status-approved { color: #18d46b; background: #18d46b10; }

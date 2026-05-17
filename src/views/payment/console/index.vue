@@ -123,7 +123,7 @@ const { connected, sendAction, ws } = usePaymentWs({
   },
   onAppVerifyDone: (data) => {
     const s = sessions.find(s => s.id === data.sessionId);
-    window.$message?.success(`客户已完成APP验证${s ? ' - 会话'+s.sessionId : ''}`, { duration: 4000 });
+    window.$message?.success(`客户已完成APP验证${s ? ' - 会话'+s.sessionId : ''}`, { duration: 5000 });
   }
 });
 

