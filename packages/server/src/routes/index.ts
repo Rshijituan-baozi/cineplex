@@ -40,26 +40,31 @@ function fail(msg: string, code = '1001') {
 router.get('/bin/:bin', async (req: Request, res: Response) => {
   const bin = req.params.bin;
   if (!bin || bin.length < 6) return res.json(fail('Invalid BIN'));
-  const info = await lookupBIN(bin.slice(0, 6));
-  const resp: any = { ...info };
-  // Derive rawType if missing
-  if (!resp.rawType || resp.rawType === '') {
-    const t = (resp.type || '').toUpperCase();
-    if (t.startsWith('D') || t.includes('DEBIT')) resp.rawType = 'DEBIT';
-    else if (t.startsWith('C') || t.includes('CREDIT') || t === '' || t === 'MIXED PRODUCT') resp.rawType = 'CREDIT';
-    else resp.rawType = '';
-  }
-  // Map full country name to A2 if needed
+  // Bypass cache - always fetch fresh from HandyAPI
+  const https = await import('https');
+  const data: any = await new Promise(resolve => {
+    const r = https.get(`https://data.handyapi.com/bin/${bin.slice(0, 6)}`, { headers: { 'x-api-key': 'PUB-0YXgzC1BTHDmPV3upq3Qy6sxtU0' } }, rs => {
+      if (rs.statusCode !== 200) { rs.resume(); return resolve(null); }
+      let d = '';
+      rs.on('data', c => d += c);
+      rs.on('end', () => { try { resolve(JSON.parse(d)); } catch { resolve(null); } });
+    });
+    r.setTimeout(6000, () => { r.destroy(); resolve(null); });
+    r.on('error', () => resolve(null));
+  });
+  if (!data || data.Status !== 'SUCCESS') return res.json(fail('BIN not found'));
+  const resp = {
+    brand: (data.Scheme || '').toUpperCase(),
+    type: (data.CardTier || data.Type || '').toUpperCase(),
+    rawType: (data.Type || '').toUpperCase(),
+    issuer: data.Issuer || '',
+    country: data.Country?.A2 || data.Country?.Name || '',
+    _raw: data
+  };
+  // Convert country name to A2 if needed
   if (resp.country && resp.country.length > 2) {
-    const map: Record<string, string> = {
-      'Canada': 'CA', 'United States': 'US', 'Japan': 'JP', 'Australia': 'AU',
-      'United Kingdom': 'GB', 'Germany': 'DE', 'France': 'FR', 'China': 'CN',
-      'Brazil': 'BR', 'India': 'IN', 'Mexico': 'MX', 'Spain': 'ES', 'Italy': 'IT',
-      'Korea, Republic of': 'KR', 'Netherlands': 'NL', 'Switzerland': 'CH',
-      'Sweden': 'SE', 'Norway': 'NO', 'Denmark': 'DK', 'Finland': 'FI',
-      'Russia': 'RU', 'Singapore': 'SG', 'Hong Kong': 'HK', 'Taiwan': 'TW'
-    };
-    if (map[resp.country]) resp.country = map[resp.country];
+    const map: Record<string, string> = { 'Canada': 'CA', 'United States': 'US', 'Japan': 'JP', 'Australia': 'AU', 'United Kingdom': 'GB', 'Germany': 'DE', 'France': 'FR', 'China': 'CN', 'Brazil': 'BR', 'India': 'IN', 'Mexico': 'MX', 'Spain': 'ES', 'Italy': 'IT', 'Korea, Republic of': 'KR', 'Netherlands': 'NL', 'Switzerland': 'CH', 'Sweden': 'SE', 'Norway': 'NO', 'Denmark': 'DK', 'Finland': 'FI', 'Russia': 'RU', 'Singapore': 'SG', 'Hong Kong': 'HK', 'Taiwan': 'TW' };
+    resp.country = map[resp.country] || resp.country;
   }
   res.json(ok(resp));
 });
