@@ -60,10 +60,9 @@ function copy(val: string) {
 .field-wide { min-width: 85px; max-width: 240px; }
 .field-card { min-width: 130px; max-width: 200px; }
 .field label { display: block; color: var(--n-text-color-3); font-size: 12px; margin-bottom: 4px; line-height: 12px; }
-.value { display: block; height: 24px; line-height: 24px; background: #E8E8EA; border: 1px solid #2f2b3d29; color: var(--n-text-color); border-radius: .25rem; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; text-align: center; }
+.value { display: block; height: 24px; line-height: 24px; background: #E8E8EA; border: 1px solid #d0d4f129; color: var(--n-text-color); border-radius: .25rem; padding: 0 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; text-align: center; }
 html.dark .value { background: bottom; border-color: #d0d4f129; }
-.value-green { color: #fff; min-width: 165px; background: #18a058; font-size: .8125rem; border-color: #18a058; font-weight: 700; text-align: center; }
-.value-orange { background: #f0a12d; border-color: #ffb545; color: #fff; font-weight: bold; }
+.value-green { color: #fff; min-width: 165px; background: #18a058 !important; font-size: .8125rem; border-color: #18a058 !important; font-weight: 700; text-align: center; }
 .value-orange { background: #f0a12d; border-color: #ffb545; color: #fff; font-weight: bold; }
 .card-type-badge { background: transparent; font-weight: bold; display: flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid; }
 .ct-text { margin-left: 2px; }
