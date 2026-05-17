@@ -169,7 +169,6 @@ function handleMoveTop(sessionId: string) {
     sessions.splice(pinnedCount, 0, item);
   }
 }
-}
 
 onUnmounted(() => {
 });
