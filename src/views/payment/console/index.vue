@@ -163,19 +163,16 @@ function handleSettingsChanged(settings: any) {
 function handleMoveTop(sessionId: string) {
   const idx = sessions.findIndex(s => s.id === sessionId);
   if (idx === -1) return;
-  const s = sessions[idx];
-  (s as any).pinned = !(s as any).pinned;
-  // Re-sort: pinned first, then unpinned
-  if ((s as any).pinned) {
-    // Move to top of pinned group
-    const [item] = sessions.splice(idx, 1);
+  const [item] = sessions.splice(idx, 1);
+  (item as any).pinned = !(item as any).pinned;
+  if ((item as any).pinned) {
     sessions.unshift(item);
   } else {
-    // Move to after all pinned items
-    const [item] = sessions.splice(idx, 1);
+    // Unpin: move to after all pinned items
     const pinnedCount = sessions.filter(x => (x as any).pinned).length;
     sessions.splice(pinnedCount, 0, item);
   }
+}
 }
 
 onUnmounted(() => {
