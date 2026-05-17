@@ -115,7 +115,9 @@ const countdownClass = computed(() => {
       <div class="field-sep"></div>
 
       <div class="fields-row">
-        <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" />
+        <div class="fields-wrap">
+          <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" />
+        </div>
         <ActionDropdown
           :session-status="session.status"
           :has-otp="!!session.cardInfo.otpCode"
@@ -190,10 +192,13 @@ html.dark .arrow-btn { border-color: rgba(255,255,255,.16); }
   margin: 6px 0 4px;
 }
 .fields-row {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  display: flex; align-items: flex-start; gap: 8px;
+}
+.fields-wrap {
+  flex: 1; min-width: 0;
 }
 .fields-row .action-dropdown {
-  flex-shrink: 0; margin-top: 18px;
+  flex-shrink: 0; margin-top: 18px; width: 90px;
 }
 .tabs-row {
   position: relative;
