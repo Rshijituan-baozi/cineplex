@@ -14,8 +14,10 @@ html {
   color: rgb(var(--base-text-color));
 }
 
-html.dark .bg-layout {
-  background: #101828 !important;
+html.dark {
+  --layout-bg-color: 16,24,40;
+  --container-bg-color: 16,24,40;
+  --inverted-bg-color: 16,24,40;
 }
 html.dark .payment-console {
   background: #202737 !important;
