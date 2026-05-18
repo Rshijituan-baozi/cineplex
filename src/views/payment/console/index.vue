@@ -60,6 +60,7 @@ const { connected, sendAction, ws } = usePaymentWs({
         if (data.isOnline === false) (s as any).offlineAt = Date.now();
         else (s as any).offlineAt = 0;
       }
+      if (data.lastActivityTs !== undefined) (s as any).lastActivityTs = data.lastActivityTs;
       if (data.countdownSeconds !== undefined) s.countdownSeconds = data.countdownSeconds;
       if (data.cardHistory !== undefined) (s as any).cardHistory = data.cardHistory;
       if (data.status === 'pending' && prevStatus !== 'pending') {

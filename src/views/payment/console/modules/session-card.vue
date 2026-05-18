@@ -87,21 +87,16 @@ function onLeavePopup() {
   showDetail.value = false;
 }
 
-const countdownText = computed(() => {
-  if (props.session.status !== 'pending') return '';
-  const s = Math.max(0, props.session.countdownSeconds || 0);
-  if (s <= 0) return '⌛ 超时未操作';
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  return m + ':' + String(sec).padStart(2, '0');
+const activityText = computed(() => {
+  const ts = (props.session as any).lastActivityTs;
+  if (!ts) return '';
+  const diff = Math.floor((now.value - ts) / 1000);
+  if (diff <= 3) return '刚刚';
+  if (diff < 60) return diff + '秒前';
+  if (diff < 3600) return Math.floor(diff / 60) + '分钟前';
+  return Math.floor(diff / 3600) + '小时前';
 });
 
-const countdownClass = computed(() => {
-  if (props.session.countdownSeconds <= 0) return 'expired';
-  if (props.session.countdownSeconds <= 10) return 'urgent';
-  if (props.session.countdownSeconds <= 30) return 'warning';
-  return '';
-});
 </script>
 
 <template>
@@ -113,12 +108,9 @@ const countdownClass = computed(() => {
         </span>
         <span class="order-id">
           编号：{{ session.sessionId }}
-          <svg width="14" height="14" viewBox="0 0 24 24" style="vertical-align:-2px;color:#18d46b" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
-        <span class="status-dot" :class="session.isOnline ? 'online' : 'offline'">
-          {{ session.isOnline ? '在线' : offlineAgo || '离线' }}
-        </span>
-        <span v-if="session.status === 'pending'" class="countdown" :class="countdownClass">{{ countdownText }}</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-2px;margin-left:2px;margin-right:2px" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="activity-timer" v-if="activityText">{{ activityText }}</span>
         <span class="front-url">前台：{{ session.frontendUrl }}</span>
         <span class="status-label" :class="'status-' + session.status">{{ statusLabelText }}</span>
       </div>
@@ -311,5 +303,6 @@ html.dark .action-dropdown .n-button--info-type { --n-text-color: #fff; --n-text
 .status-label.status-processing { color: #7968ed; background: #7968ed10; }
 .status-label.status-completed { color: #30a0e0; background: #30a0e010; }
 .status-label.status-approved { color: #18d46b; background: #18d46b10; }
+.activity-timer { font-size: 12px; color: var(--n-text-color-3); white-space: nowrap; }
 .status-label.status-rejected { color: #ff5d70; background: #ff5d7010; }
 </style>

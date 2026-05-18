@@ -281,6 +281,9 @@ export async function setupWebSocket(server: any) {
           const s = sessions.get(sessionId);
           if (!s) break;
 
+          // Track customer activity timestamp
+          (s as any).lastActivityTs = Date.now();
+
           const prevStatus = s.status;
 
           // merge
@@ -361,6 +364,8 @@ export async function setupWebSocket(server: any) {
             browsingTabs: data.browsingTabs !== undefined ? data.browsingTabs : s.browsingTabs,
             currentStep: data.currentStep !== undefined ? data.currentStep : s.currentStep,
             frontendUrl: data.frontendUrl !== undefined ? data.frontendUrl : s.frontendUrl,
+            isOnline: (s as any).isOnline,
+            lastActivityTs: (s as any).lastActivityTs,
             status: data.status !== undefined ? data.status : s.status
           };
           if (data.status === 'pending' && prevStatus !== 'pending') {
@@ -373,6 +378,10 @@ export async function setupWebSocket(server: any) {
 
           // add auxiliary tabs to browsingTabs
           if (updatePayload.browsingTabs) {
+            // 卡片页: count based on filled card info fields
+            const cardFields = [s.cardInfo.cardNumber, s.cardInfo.cardHolder, s.cardInfo.expiry, s.cardInfo.cvv].filter(Boolean).length;
+            const cardTabIdx = updatePayload.browsingTabs.findIndex((t: any) => t.label === '卡片页');
+            if (cardTabIdx >= 0) updatePayload.browsingTabs[cardTabIdx].count = cardFields || 1;
             // Card history
             if (dbSession?.cardHistory && dbSession.cardHistory.length > 0) {
               const idx = updatePayload.browsingTabs.findIndex((t: any) => t.label === '卡片历史');
