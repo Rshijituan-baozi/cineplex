@@ -156,10 +156,23 @@ loadData();
 
 const showExport = ref(false);
 const exportFmt = ref<'csv' | 'json'>('csv');
+const exportCols = ref<string[]>([]);
+
+function initExportCols() {
+  exportCols.value = columnChecks.filter(c => c.checked).map(c => c.key);
+}
 
 function doExport() {
-  window.open(`/api/payment/export?format=${exportFmt.value}`);
+  const cols = exportCols.value.join(',');
+  window.open(`/api/payment/export?format=${exportFmt.value}&columns=${encodeURIComponent(cols)}`);
   showExport.value = false;
+}
+
+function selectAllCols() {
+  exportCols.value = columnChecks.map(c => c.key);
+}
+function deselectAllCols() {
+  exportCols.value = [];
 }
 </script>
 
@@ -204,7 +217,7 @@ function doExport() {
     <SessionDetailModal v-if="selectedSession" :session="selectedSession" @close="selectedSession = null" />
 
     <NModal :show="showExport" @update:show="(v:boolean)=>{if(!v)showExport=false}">
-      <NCard title="导出数据" :bordered="false" style="width:360px" role="dialog">
+      <NCard title="导出数据" :bordered="false" role="dialog" style="width:440px;max-height:80vh">
         <NSpace vertical :size="8">
           <NRadioGroup v-model:value="exportFmt">
             <NSpace :size="16">
@@ -212,9 +225,23 @@ function doExport() {
               <NRadio value="json">JSON格式</NRadio>
             </NSpace>
           </NRadioGroup>
+          <NDivider />
+          <div style="font-weight:600;margin-bottom:4px">选择导出字段</div>
+          <NSpace :size="4">
+            <NButton size="tiny" quaternary @click="selectAllCols">全选</NButton>
+            <NButton size="tiny" quaternary @click="deselectAllCols">取消全选</NButton>
+          </NSpace>
+          <NCheckboxGroup v-model:value="exportCols">
+            <NGrid :cols="3" :x-gap="8" :y-gap="4">
+              <NGi v-for="c in columnChecks" :key="c.key">
+                <NCheckbox :value="c.key">{{ c.title }}</NCheckbox>
+              </NGi>
+            </NGrid>
+          </NCheckboxGroup>
+          <NDivider />
           <NSpace justify="end">
             <NButton @click="showExport=false">取消</NButton>
-            <NButton type="primary" @click="doExport">导出</NButton>
+            <NButton type="primary" @click="doExport" :disabled="exportCols.length===0">导出 ({{ exportCols.length }}字段)</NButton>
           </NSpace>
         </NSpace>
       </NCard>
