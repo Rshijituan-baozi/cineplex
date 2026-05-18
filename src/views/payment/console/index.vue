@@ -157,6 +157,18 @@ function handleSettingsChanged(settings: any) {
   }
 }
 
+async function refreshSessions() {
+  try {
+    const res = await fetch('/api/payment/sessions');
+    const json = await res.json();
+    if (json.code === '0000') {
+      const list = json.data.filter((s: any) => s.isOnline !== false);
+      sessions.splice(0, sessions.length, ...list);
+      window.$message?.success('已刷新');
+    }
+  } catch { window.$message?.error('刷新失败') }
+}
+
 function handleMoveTop(sessionId: string) {
   const idx = sessions.findIndex(s => s.id === sessionId);
   if (idx === -1) return;
@@ -178,6 +190,7 @@ onUnmounted(() => {
   <div class="payment-console">
     <div class="console-toolbar">
       <NButton size="small" quaternary @click="settingsPanel?.open()">⚙ 面板设置</NButton>
+      <NButton size="small" quaternary @click="refreshSessions">🔄 刷新</NButton>
     </div>
     <div class="console-body">
       <div v-if="!sessions.length" class="empty-state">

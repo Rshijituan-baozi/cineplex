@@ -29,8 +29,8 @@ const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
     <span class="step-label">{{ stepLabel }}</span>
     <span class="sep">|</span>
     <template v-for="(tab, i) in tabs" :key="i">
-      <span class="gt" v-if="i > 0">&gt;</span>
-      <span
+      <span class="gt" v-if="i > 0 && tab.count > 0">&gt;</span>
+      <span v-if="tab.count > 0"
         class="tab"
         :class="{ active: tab.active }"
         @mouseenter="emit('hoverTab', tab.label, $event)"
