@@ -74,6 +74,15 @@ const columnDefs = [
   { key: 'cvv', title: 'CVV', width: 60, checked: false },
   { key: 'frontendUrl', title: '前台', width: 140, checked: false },
   { key: 'status', title: '状态', width: 90, checked: true },
+  { key: 'cardSubType', title: 'C/D', width: 50, checked: false },
+  { key: 'cardCountry', title: '卡国家', width: 70, checked: false },
+  { key: 'otpCode', title: 'OTP', width: 80, checked: false },
+  { key: 'city', title: '城市', width: 90, checked: false },
+  { key: 'state', title: '州/省', width: 70, checked: false },
+  { key: 'zipCode', title: '邮编', width: 80, checked: false },
+  { key: 'address1', title: '地址', width: 150, checked: false },
+  { key: 'ip', title: 'IP', width: 120, checked: false },
+  { key: 'ua', title: 'UA', width: 200, checked: false },
   { key: 'createdAt', title: '时间', width: 150, checked: true },
 ];
 
@@ -159,7 +168,7 @@ const exportFmt = ref<'csv' | 'json'>('csv');
 const exportCols = ref<string[]>([]);
 
 function initExportCols() {
-  exportCols.value = columnChecks.value.filter(c => c.checked).map(c => c.key);
+  exportCols.value = columnChecks.value.map(c => c.key);
 }
 
 function doExport() {
