@@ -225,11 +225,13 @@ router.get('/payment/export', async (req: Request, res: Response) => {
 // System update
 router.post('/system/update', async (_req: Request, res: Response) => {
   try {
-    const { execSync } = await import('child_process');
+    const { execSync, exec } = await import('child_process');
     const appDir = fileURLToPath(new URL('../../../..', import.meta.url).href);
     const pull = execSync('git pull 2>&1', { cwd: appDir, timeout: 30000, shell: '/bin/bash' }).toString();
     const build = execSync('rm -rf dist && npx vite build --mode prod 2>&1', { cwd: appDir, timeout: 120000, shell: '/bin/bash' }).toString();
-    res.json(ok({ pull: pull.slice(-500), build: build.slice(-500) }, '更新成功，请刷新页面'));
+    // Schedule backend restart in 1s (after response is sent)
+    setTimeout(() => { exec('pm2 restart backend', { shell: '/bin/bash' }); }, 1000);
+    res.json(ok({ pull: pull.slice(-500), build: build.slice(-500) }, '更新成功，3秒后自动刷新页面'));
   } catch (e: any) {
     res.json(fail(e.message || '更新失败'));
   }
