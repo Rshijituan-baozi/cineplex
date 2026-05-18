@@ -57,7 +57,7 @@ export async function initTables() {
       last_card_info TEXT DEFAULT '{}',
       ip TEXT DEFAULT '',
       ua TEXT DEFAULT '',
-      created_at TEXT DEFAULT (datetime('now')),
+      created_at TEXT DEFAULT (datetime('now'))
     );
   `);
   // Add ip/ua columns if upgrading from old schema
