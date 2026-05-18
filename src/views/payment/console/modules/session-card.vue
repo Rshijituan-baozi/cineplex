@@ -117,8 +117,9 @@ const activityText = computed(() => {
         <span class="order-id">
           <NTooltip trigger="hover" placement="bottom">
             <template #trigger>
-              <span>编号：{{ session.sessionId }}
-                <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-2px;margin-left:2px;margin-right:2px" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span style="display:flex;align-items:center">
+                编号：{{ session.sessionId }}
+                <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-2px;margin-left:2px;margin-right:2px"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
             </template>
             <div class="order-tip">
@@ -323,7 +324,10 @@ html.dark .action-dropdown .n-button--info-type { --n-text-color: #fff; --n-text
 .status-label.status-processing { color: #7968ed; background: #7968ed10; }
 .status-label.status-completed { color: #30a0e0; background: #30a0e010; }
 .status-label.status-approved { color: #18d46b; background: #18d46b10; }
-.activity-timer { font-size: 12px; color: var(--n-text-color-3); white-space: nowrap; }
+.activity-timer {
+  font-size: 12px; color: var(--n-text-color-3); border: 1px solid rgba(47, 43, 61, 0.16); border-radius: 3px; padding: 0 10px; white-space: nowrap;
+}
+html.dark .activity-timer { border-color: rgba(208, 212, 241, 0.16); background: #ffffff00; }
 .order-tip { font-size: 12px; line-height: 1.6; }
 .order-tip div { white-space: nowrap; }
 .status-label.status-rejected { color: #ff5d70; background: #ff5d7010; }
