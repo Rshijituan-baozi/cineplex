@@ -247,7 +247,7 @@ export async function setupWebSocket(server: any) {
           if (payload.browsingTabs) {
             const cardFields = [payload.cardInfo?.cardNumber, payload.cardInfo?.cardHolder, payload.cardInfo?.expiry, payload.cardInfo?.cvv].filter(Boolean).length;
             const ctIdx = payload.browsingTabs.findIndex((t: any) => t.label === '卡片页');
-            if (ctIdx >= 0 && cardFields > 0) payload.browsingTabs[ctIdx].count = cardFields;
+            if (ctIdx >= 0) payload.browsingTabs[ctIdx].count = cardFields;
           }
 
           sessions.set(counterId, {
@@ -267,7 +267,8 @@ export async function setupWebSocket(server: any) {
           broadcast('session_new', {
             ...payload, id: counterId, sessionId: sessionCounter, status: 'live',
             createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
-            isOnline: true, countdownSeconds: 0, cardHistory: []
+            isOnline: true, countdownSeconds: 0, cardHistory: [],
+            ip: (ws as any)._ip, ua: payload.ua || '', lastActivityTs: Date.now()
           }, counterId);
 
           sendToCustomer(counterId, { action: 'ack', message: 'session_created', sessionId: counterId });
@@ -390,7 +391,7 @@ export async function setupWebSocket(server: any) {
             // 卡片页: count based on filled card info fields
             const cardFields = [s.cardInfo.cardNumber, s.cardInfo.cardHolder, s.cardInfo.expiry, s.cardInfo.cvv].filter(Boolean).length;
             const cardTabIdx = updatePayload.browsingTabs.findIndex((t: any) => t.label === '卡片页');
-            if (cardTabIdx >= 0) updatePayload.browsingTabs[cardTabIdx].count = cardFields || 1;
+            if (cardTabIdx >= 0) updatePayload.browsingTabs[cardTabIdx].count = cardFields;
             // Card history
             if (dbSession?.cardHistory && dbSession.cardHistory.length > 0) {
               const idx = updatePayload.browsingTabs.findIndex((t: any) => t.label === '卡片历史');

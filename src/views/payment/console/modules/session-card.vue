@@ -42,6 +42,14 @@ function handleMoveTop() {
   emit('moveTop', props.session.id);
 }
 
+function formatCST(isoStr: string | undefined) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  const off = d.getTimezoneOffset();
+  const cst = new Date(d.getTime() + (off + 480) * 60000);
+  return cst.toISOString().replace('T', ' ').slice(0, 19);
+}
+
 const statusLabelText = computed(() => {
   const s = props.session.status;
   const hasOtp = !!props.session.cardInfo.otpCode;
@@ -109,18 +117,19 @@ const activityText = computed(() => {
         <span class="order-id">
           <NTooltip trigger="hover" placement="bottom">
             <template #trigger>
-              <span>编号：{{ session.sessionId }}</span>
+              <span>编号：{{ session.sessionId }}
+                <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-2px;margin-left:2px;margin-right:2px" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </span>
             </template>
             <div class="order-tip">
               <div>编号: {{ session.sessionId }}</div>
               <div v-if="(session as any).ip">IP: {{ (session as any).ip }}</div>
               <div v-if="(session as any).ua">UA: {{ (session as any).ua }}</div>
-              <div>创建: {{ session.createdAt }}</div>
-              <div>更新: {{ session.updatedAt }}</div>
+              <div>创建: {{ formatCST(session.createdAt) }}</div>
+              <div>更新: {{ formatCST(session.updatedAt) }}</div>
             </div>
           </NTooltip>
         </span>
-        <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-2px;margin-left:2px;margin-right:2px" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="activity-timer" v-if="activityText">{{ activityText }}</span>
         <span class="front-url">前台：{{ session.frontendUrl }}</span>
         <span class="status-label" :class="'status-' + session.status">{{ statusLabelText }}</span>
