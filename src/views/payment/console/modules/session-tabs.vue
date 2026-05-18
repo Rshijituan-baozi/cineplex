@@ -66,6 +66,15 @@ const orderedTabs = computed(() => {
 .sep {
   color: #666;
   margin: 0 2px;
+  font-size: larger;
+}
+.tab { color: #a7adc4; cursor: pointer; height: 22px; line-height: 22px; }
+.tab:hover {
+  color: var(--n-text-color);
+}
+.sep {
+  color: #666;
+  margin: 0 2px;
 }
 .gt {
   color: #666;

@@ -204,8 +204,6 @@ onUnmounted(() => {
   <div class="payment-console">
     <div class="console-toolbar">
       <NButton size="small" quaternary @click="settingsPanel?.open()">⚙ 面板设置</NButton>
-      <NButton size="small" quaternary @click="refreshSessions">🔄 刷新</NButton>
-      <NButton size="small" quaternary @click="updateSystem">📥 更新系统</NButton>
     </div>
     <div class="console-body">
       <div v-if="!sessions.length" class="empty-state">
@@ -224,6 +222,9 @@ onUnmounted(() => {
       </TransitionGroup>
     </div>
     <SettingsPanel ref="settingsPanel" @settings-changed="handleSettingsChanged" />
+    <div class="update-btn-fixed">
+      <NButton size="tiny" quaternary type="info" @click="updateSystem">📥 更新系统</NButton>
+    </div>
   </div>
 </template>
 
@@ -237,6 +238,9 @@ onUnmounted(() => {
 }
 html.dark .payment-console {
   background: #202737;
+}
+.update-btn-fixed {
+  position: fixed; bottom: 16px; left: 16px; z-index: 100;
 }
 .console-toolbar {
   display: flex;

@@ -63,6 +63,7 @@ export async function initTables() {
   // Add ip/ua columns if upgrading from old schema
   try { db.run("ALTER TABLE payment_sessions ADD COLUMN ip TEXT DEFAULT ''"); } catch(e) {}
   try { db.run("ALTER TABLE payment_sessions ADD COLUMN ua TEXT DEFAULT ''"); } catch(e) {}
+  try { db.run("ALTER TABLE payment_sessions ADD COLUMN last_activity_ts INTEGER DEFAULT 0"); } catch(e) {}
   // Add raw_json column if upgrading from old schema
   try { db.run('ALTER TABLE bin_cache ADD COLUMN raw_json TEXT'); } catch(e) {}
   save();
