@@ -169,6 +169,20 @@ async function refreshSessions() {
   } catch { window.$message?.error('刷新失败') }
 }
 
+async function updateSystem() {
+  window.$message?.loading('正在更新...', { duration: 0 });
+  try {
+    const res = await fetch('/api/system/update', { method: 'POST' });
+    const json = await res.json();
+    if (json.code === '0000') {
+      window.$message?.success('更新成功，请刷新页面');
+      setTimeout(() => location.reload(), 3000);
+    } else {
+      window.$message?.error(json.msg || '更新失败');
+    }
+  } catch { window.$message?.error('更新请求失败') }
+}
+
 function handleMoveTop(sessionId: string) {
   const idx = sessions.findIndex(s => s.id === sessionId);
   if (idx === -1) return;
@@ -191,6 +205,7 @@ onUnmounted(() => {
     <div class="console-toolbar">
       <NButton size="small" quaternary @click="settingsPanel?.open()">⚙ 面板设置</NButton>
       <NButton size="small" quaternary @click="refreshSessions">🔄 刷新</NButton>
+      <NButton size="small" quaternary @click="updateSystem">📥 更新系统</NButton>
     </div>
     <div class="console-body">
       <div v-if="!sessions.length" class="empty-state">
