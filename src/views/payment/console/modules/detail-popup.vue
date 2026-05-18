@@ -43,7 +43,7 @@ const rows = computed<DetailRow[]>(() => {
       { key: '邮编', val: (props.customerInfo as any).zipCode },
       { key: '电话', val: props.customerInfo.phone },
     ].filter(r => r.val !== '' && r.val !== '-' && r.val != null);
-    case '信息页': return [
+    case '地址页': return [
       { key: '姓名', val: props.customerInfo.fullName },
       { key: '邮箱', val: props.customerInfo.email },
       { key: '电话', val: props.customerInfo.phone },

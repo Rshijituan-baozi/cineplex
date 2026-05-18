@@ -22,14 +22,19 @@ const stepLabelMap: Record<string, string> = {
 };
 
 const stepLabel = computed(() => stepLabelMap[props.currentStep] || '');
+
+const orderedTabs = computed(() => {
+  const order: Record<string, number> = { '地址页': 1, '卡片页': 2, '卡片历史': 3 };
+  return [...props.tabs].sort((a, b) => (order[a.label] || 99) - (order[b.label] || 99));
+});
 </script>
 
 <template>
   <div class="session-tabs">
     <span class="step-label">{{ stepLabel }}</span>
-    <span class="sep">|</span>
-    <template v-for="(tab, i) in tabs" :key="i">
-      <span class="gt" v-if="i > 0 && tab.count > 0">&gt;</span>
+    <span class="sep" v-if="orderedTabs.some(t => t.count > 0)">|</span>
+    <template v-for="(tab, i) in orderedTabs" :key="i">
+      <span class="gt" v-if="i > 0 && tab.count > 0 && orderedTabs[i-1]?.count > 0">&gt;</span>
       <span v-if="tab.count > 0"
         class="tab"
         :class="{ active: tab.active }"

@@ -26,7 +26,7 @@ async function start() {
   const hash = await bcrypt.hash('123456', 10);
   const defaults = [
     { username: 'Super', real_name: '超级管理员', roles: '["R_SUPER"]' },
-    { username: 'Soybean', real_name: 'Soybean', roles: '["R_SUPER"]' },
+    { username: 'Omega', real_name: 'Omega', roles: '["R_SUPER"]' },
     { username: 'Admin', real_name: '管理员', roles: '["R_ADMIN"]' },
     { username: 'User', real_name: '普通用户', roles: '["R_USER"]' },
   ];

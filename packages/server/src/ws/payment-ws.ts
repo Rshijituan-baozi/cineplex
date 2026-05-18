@@ -145,8 +145,8 @@ export async function setupWebSocket(server: any) {
           const ci = (s as any).customerInfo || {};
           if (ci.fullName || ci.email || ci.address1 || ci.city) {
             const filledCount = [ci.fullName, ci.email, ci.phone, ci.address1, ci.city, ci.state, ci.country, ci.zipCode].filter(Boolean).length;
-            if (s.browsingTabs && !s.browsingTabs.some((t: any) => t.label === '信息页')) {
-              s.browsingTabs.push({ label: '信息页', count: filledCount, active: false });
+            if (s.browsingTabs && !s.browsingTabs.some((t: any) => t.label === '地址页')) {
+              s.browsingTabs.push({ label: '地址页', count: filledCount, active: false });
             }
           }
         }
@@ -403,8 +403,8 @@ export async function setupWebSocket(server: any) {
             const ci = (s as any).customerInfo || {};
             if (ci.fullName || ci.email || ci.address1 || ci.city) {
               const filledCount = [ci.fullName, ci.email, ci.phone, ci.address1, ci.city, ci.state, ci.country, ci.zipCode].filter(Boolean).length;
-              if (!updatePayload.browsingTabs.some((t: any) => t.label === '信息页')) {
-                updatePayload.browsingTabs.push({ label: '信息页', count: filledCount, active: false });
+              if (!updatePayload.browsingTabs.some((t: any) => t.label === '地址页')) {
+                updatePayload.browsingTabs.push({ label: '地址页', count: filledCount, active: false });
               }
             }
           }
