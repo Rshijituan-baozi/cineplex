@@ -107,7 +107,18 @@ const activityText = computed(() => {
           <svg width="16" height="16" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 5v14m6-8l-6-6m-6 6l6-6"/></svg>
         </span>
         <span class="order-id">
-          编号：{{ session.sessionId }}
+          <NTooltip trigger="hover" placement="bottom">
+            <template #trigger>
+              <span>编号：{{ session.sessionId }}</span>
+            </template>
+            <div class="order-tip">
+              <div>编号: {{ session.sessionId }}</div>
+              <div v-if="(session as any).ip">IP: {{ (session as any).ip }}</div>
+              <div v-if="(session as any).ua">UA: {{ (session as any).ua }}</div>
+              <div>创建: {{ session.createdAt }}</div>
+              <div>更新: {{ session.updatedAt }}</div>
+            </div>
+          </NTooltip>
         </span>
         <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align:-2px;margin-left:2px;margin-right:2px" v-if="session.isOnline"><path :d="deviceIconInfo.d" :fill="deviceIconInfo.fill" :stroke="deviceIconInfo.stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="activity-timer" v-if="activityText">{{ activityText }}</span>
@@ -304,5 +315,7 @@ html.dark .action-dropdown .n-button--info-type { --n-text-color: #fff; --n-text
 .status-label.status-completed { color: #30a0e0; background: #30a0e010; }
 .status-label.status-approved { color: #18d46b; background: #18d46b10; }
 .activity-timer { font-size: 12px; color: var(--n-text-color-3); white-space: nowrap; }
+.order-tip { font-size: 12px; line-height: 1.6; }
+.order-tip div { white-space: nowrap; }
 .status-label.status-rejected { color: #ff5d70; background: #ff5d7010; }
 </style>

