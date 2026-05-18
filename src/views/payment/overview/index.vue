@@ -159,7 +159,7 @@ const exportFmt = ref<'csv' | 'json'>('csv');
 const exportCols = ref<string[]>([]);
 
 function initExportCols() {
-  exportCols.value = columnChecks.filter(c => c.checked).map(c => c.key);
+  exportCols.value = columnChecks.value.filter(c => c.checked).map(c => c.key);
 }
 
 function doExport() {
@@ -169,7 +169,7 @@ function doExport() {
 }
 
 function selectAllCols() {
-  exportCols.value = columnChecks.map(c => c.key);
+  exportCols.value = columnChecks.value.map(c => c.key);
 }
 function deselectAllCols() {
   exportCols.value = [];
@@ -189,7 +189,7 @@ function deselectAllCols() {
       <NSelect v-model:value="cardStatusFilter" placeholder="筛选资料" :options="cardStatusOptions" style="width:140px" />
       <NSelect v-model:value="frontendFilter" placeholder="按前台" clearable :options="frontendOptions" style="width:160px" />
       <div class="toolbar-spacer" />
-      <NButton size="small" quaternary @click="showExport=true">📥 导出</NButton>
+      <NButton size="small" quaternary @click="showExport=true;initExportCols()">📥 导出</NButton>
       <NPopover trigger="click" placement="bottom-end">
         <template #trigger><NButton size="small" quaternary>⚙ 列设置</NButton></template>
         <div class="col-popover">
