@@ -17,8 +17,8 @@ const emit = defineEmits<{
 
 const deviceIconInfo = computed(() => {
   const ua = ((props.session as any).ua || '') as string;
-  if (/iPhone|iPad|iPod|Macintosh|Mac OS X/i.test(ua)) return { d: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4zm0 9h18M8 21h8m-6-4l-.5 4m4.5-4l.5 4', fill: 'none', stroke: 'currentColor' };
-  if (/Android|Linux/i.test(ua)) return { d: 'M4 10v6m16-6v6M7 9h10v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9a5 5 0 0 1 10 0M8 3l1 2m7-2l-1 2M9 18v3m6-3v3', fill: 'none', stroke: 'currentColor' };
+  if (/iPhone|iPad|iPod|Mobile|Android/i.test(ua)) return { d: 'M4 10v6m16-6v6M7 9h10v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9a5 5 0 0 1 10 0M8 3l1 2m7-2l-1 2M9 18v3m6-3v3', fill: 'none', stroke: 'currentColor' };
+  if (/Macintosh|Mac OS X/i.test(ua)) return { d: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4zm0 9h18M8 21h8m-6-4l-.5 4m4.5-4l.5 4', fill: 'none', stroke: 'currentColor' };
   return { d: 'M21 13v5c0 1.57-1.248 2.832-2.715 2.923l-.113.003l-.042.018a1 1 0 0 1-.336.056l-.118-.008L13 20.407V13zm-10 0v7.157l-5.3-.662C4.186 19.344 3 18.112 3 16.6V13zm0-9.158V11H3V7.4c0-1.454 1.096-2.648 2.505-2.87zM21 5.9V11h-8V3.591l4.717-.589C19.476 2.857 21 4.191 21 5.9', fill: 'currentColor', stroke: 'none' };
 });
 
