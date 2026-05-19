@@ -21,6 +21,11 @@ function playAudio(audio: HTMLAudioElement) {
 var _onlyCardFilter = false;
 try { var _saved = JSON.parse(localStorage.getItem('payment_console_settings')||'{}'); _onlyCardFilter = !!_saved.onlyCardData } catch(e){}
 
+const hideBin = ref(false);
+const hidePhone = ref(false);
+const hideTabs = ref(false);
+const hideAddress = ref(false);
+
 const { connected, sendAction, ws } = usePaymentWs({
   wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/`,
   operatorId: 'op_' + Date.now(),
@@ -143,6 +148,10 @@ function handleAction(action: Api.Payment.OperatorAction, sessionId: string, mes
 
 function handleSettingsChanged(settings: any) {
   _onlyCardFilter = !!settings.onlyCardData;
+  hideBin.value = !!settings.hideBinFields;
+  hidePhone.value = !!settings.hidePhoneField;
+  hideTabs.value = !!settings.hideTabBar;
+  hideAddress.value = !!settings.hideAddressBar;
   if (ws.value?.readyState === WebSocket.OPEN) {
     ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
   } else {
@@ -216,6 +225,10 @@ onUnmounted(() => {
           :key="s.id"
           :session="s"
           :pinned="!!(s as any).pinned"
+          :hide-bin="hideBin"
+          :hide-phone="hidePhone"
+          :hide-tabs="hideTabs"
+          :hide-address="hideAddress"
           @action="(a: any, s: any, m: any) => handleAction(a, s, m)"
           @move-top="handleMoveTop"
         />

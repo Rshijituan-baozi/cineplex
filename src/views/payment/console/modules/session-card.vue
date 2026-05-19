@@ -8,6 +8,10 @@ import ActionDropdown from './action-dropdown.vue';
 const props = defineProps<{
   session: Api.Payment.PaymentSession;
   pinned?: boolean;
+  hideBin?: boolean;
+  hidePhone?: boolean;
+  hideTabs?: boolean;
+  hideAddress?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -140,7 +144,7 @@ const activityText = computed(() => {
 
       <div class="fields-row">
         <div class="fields-wrap">
-          <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" />
+          <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" />
         </div>
         <ActionDropdown
           :session-status="session.status"
@@ -151,7 +155,7 @@ const activityText = computed(() => {
         />
       </div>
 
-      <div class="tabs-row" @mouseleave="onLeaveTabs">
+      <div class="tabs-row" v-if="!hideTabs" @mouseleave="onLeaveTabs">
         <SessionTabs :tabs="session.browsingTabs" :current-step="session.currentStep" @hover-tab="onHoverTab" />
         <DetailPopup
           v-show="showDetail && hoveredTab"

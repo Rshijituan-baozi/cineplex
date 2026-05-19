@@ -9,6 +9,8 @@ export interface ConsoleSettings {
   hidePhoneField: boolean;
   onlyCardData: boolean;
   hideEmptyClients: boolean;
+  hideTabBar: boolean;
+  hideAddressBar: boolean;
   customOtpTail: string;
   unattendedMode: boolean;
   unattendedSeconds: number;
@@ -29,6 +31,8 @@ const settings = reactive<ConsoleSettings>({
   hidePhoneField: false,
   onlyCardData: false,
   hideEmptyClients: false,
+  hideTabBar: false,
+  hideAddressBar: false,
   customOtpTail: '',
   unattendedMode: false,
   unattendedSeconds: 3,
@@ -55,7 +59,7 @@ load();
 watch(settings, () => {
   save();
   emit('settings-changed', { ...settings });
-}, { deep: true, immediate: true });
+}, { deep: true });
 
 function open() { visible.value = true; }
 function close() { visible.value = false; }
@@ -68,22 +72,22 @@ defineExpose({ open, close, settings, visible });
     <NDrawerContent title="会话面板设置" closable>
       <div class="settings-body">
 
-        <!-- 数据展示 -->
         <div class="section">
           <h4>数据展示</h4>
-          <NSpace vertical :size="4">
-            <NCheckbox v-model:checked="settings.dataReverse">数据倒序排列</NCheckbox>
-            <NCheckbox v-model:checked="settings.hideBinFields">隐藏卡级/卡银行等 BIN 信息</NCheckbox>
-            <NCheckbox v-model:checked="settings.hidePhoneField">隐藏电话栏</NCheckbox>
+          <NSpace vertical :size="6">
+            <div class="switch-row"><span>数据倒序排列</span><NSwitch v-model:value="settings.dataReverse" size="small" /></div>
+            <div class="switch-row"><span>隐藏BIN信息（卡级/发卡行）</span><NSwitch v-model:value="settings.hideBinFields" size="small" /></div>
+            <div class="switch-row"><span>隐藏电话栏</span><NSwitch v-model:value="settings.hidePhoneField" size="small" /></div>
+            <div class="switch-row"><span>隐藏标签栏</span><NSwitch v-model:value="settings.hideTabBar" size="small" /></div>
+            <div class="switch-row"><span>隐藏地址栏</span><NSwitch v-model:value="settings.hideAddressBar" size="small" /></div>
           </NSpace>
         </div>
 
-        <!-- 过滤设置 -->
         <div class="section">
           <h4>过滤设置</h4>
-          <NSpace vertical :size="4">
-            <NCheckbox v-model:checked="settings.onlyCardData">只显示填卡数据</NCheckbox>
-            <NCheckbox v-model:checked="settings.hideEmptyClients">隐藏无数据客户端</NCheckbox>
+          <NSpace vertical :size="6">
+            <div class="switch-row"><span>只显示填卡数据</span><NSwitch v-model:value="settings.onlyCardData" size="small" /></div>
+            <div class="switch-row"><span>隐藏无数据客户端</span><NSwitch v-model:value="settings.hideEmptyClients" size="small" /></div>
           </NSpace>
           <div class="field-row">
             <label>OTP 验证码手机尾号</label>
@@ -91,14 +95,11 @@ defineExpose({ open, close, settings, visible });
           </div>
         </div>
 
-        <!-- 功能设置 -->
         <div class="section">
           <h4>功能设置</h4>
-          <NSpace vertical :size="4">
-            <NCheckbox v-model:checked="settings.unattendedMode">
-              无人值守（{{ settings.unattendedSeconds }}s 后自动跳转完成）
-            </NCheckbox>
-            <NCheckbox v-model:checked="settings.allowDuplicateCard">允许重复卡号提交</NCheckbox>
+          <NSpace vertical :size="6">
+            <div class="switch-row"><span>无人值守（{{ settings.unattendedSeconds }}s 后自动跳转完成）</span><NSwitch v-model:value="settings.unattendedMode" size="small" /></div>
+            <div class="switch-row"><span>允许重复卡号提交</span><NSwitch v-model:value="settings.allowDuplicateCard" size="small" /></div>
           </NSpace>
           <div class="field-row">
             <label>按卡类型筛选</label>
@@ -114,7 +115,6 @@ defineExpose({ open, close, settings, visible });
           </div>
         </div>
 
-        <!-- TG推送到群 -->
         <div class="section">
           <h4>TG推送到群</h4>
           <div class="field-row">
@@ -133,27 +133,10 @@ defineExpose({ open, close, settings, visible });
 </template>
 
 <style scoped>
-.settings-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.section {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--n-border-color);
-}
-.section h4 {
-  font-size: 13px;
-  color: #18d46b;
-  margin-bottom: 10px;
-}
-.field-row {
-  margin-top: 10px;
-}
-.field-row label {
-  font-size: 12px;
-  color: var(--n-text-color-3);
-  margin-bottom: 4px;
-  display: block;
-}
+.settings-body { display: flex; flex-direction: column; gap: 4px; }
+.section { padding: 12px 0; border-bottom: 1px solid var(--n-border-color); }
+.section h4 { font-size: 13px; color: #18d46b; margin-bottom: 10px; }
+.field-row { margin-top: 10px; }
+.field-row label { font-size: 12px; color: var(--n-text-color-3); margin-bottom: 4px; display: block; }
+.switch-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
 </style>
