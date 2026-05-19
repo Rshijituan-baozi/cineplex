@@ -21,8 +21,8 @@ const emit = defineEmits<{
 
 const deviceIconInfo = computed(() => {
   const ua = ((props.session as any).ua || '') as string;
-  if (/iPhone|iPad|iPod/i.test(ua)) return { d: 'M8 3l1 2m6-2l-1 2M7 9h10v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9zm-3 1v6m16-6v6M9 18v3m6-3v3', fill: 'none', stroke: 'currentColor' };
-  if (/Android|Mobile/i.test(ua)) return { d: 'M4 10v6m16-6v6M7 9h10v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9a5 5 0 0 1 10 0M8 3l1 2m7-2l-1 2M9 18v3m6-3v3', fill: 'none', stroke: 'currentColor' };
+  if (/iPhone|iPad|iPod/i.test(ua)) return { d: 'm15.079 5.999l.239.012c1.43.097 3.434 1.013 4.508 2.586a1 1 0 0 1-.344 1.44c-.05.028-.372.158-.497.217a4 4 0 0 0-.722.431c-.614.461-.948 1.009-.942 1.694c.01.885.339 1.454.907 1.846c.208.143.436.253.666.33c.126.043.426.116.444.122a1 1 0 0 1 .662.942C20 18.24 16.96 22 14.714 22c-.79 0-1.272-.091-1.983-.315l-.098-.031c-.463-.146-.702-.192-1.133-.192c-.52 0-.863.06-1.518.237l-.197.053c-.575.153-.964.226-1.5.248C5.536 22 3 16.907 3 12.928c0-3.87 1.786-6.92 5.286-6.92q.444.002.909.128c.403.107.774.26 1.296.508c.787.374.948.44 1.009.44h.016c.03-.003.128-.047 1.056-.457c1.061-.467 1.864-.685 2.746-.616l-.24-.012zM14 1a1 1 0 0 1 1 1a3 3 0 0 1-3 3a1 1 0 0 1-1-1a3 3 0 0 1 3-3', fill: 'currentColor', stroke: 'none' };
+  if (/Android/i.test(ua)) return { d: 'M4 10v6m16-6v6M7 9h10v8a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V9a5 5 0 0 1 10 0M8 3l1 2m7-2l-1 2M9 18v3m6-3v3', fill: 'none', stroke: 'currentColor' };
   if (/Macintosh|Mac OS X/i.test(ua)) return { d: 'M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4zm0 9h18M8 21h8m-6-4l-.5 4m4.5-4l.5 4', fill: 'none', stroke: 'currentColor' };
   return { d: 'M21 13v5c0 1.57-1.248 2.832-2.715 2.923l-.113.003l-.042.018a1 1 0 0 1-.336.056l-.118-.008L13 20.407V13zm-10 0v7.157l-5.3-.662C4.186 19.344 3 18.112 3 16.6V13zm0-9.158V11H3V7.4c0-1.454 1.096-2.648 2.505-2.87zM21 5.9V11h-8V3.591l4.717-.589C19.476 2.857 21 4.191 21 5.9', fill: 'currentColor', stroke: 'none' };
 });
@@ -145,7 +145,7 @@ const activityText = computed(() => {
 
       <div class="fields-row">
         <div class="fields-wrap">
-          <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" />
+          <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
         </div>
         <ActionDropdown
           :session-status="session.status"
