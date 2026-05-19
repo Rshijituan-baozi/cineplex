@@ -134,6 +134,7 @@ export async function setupWebSocket(server: any) {
     if (role === 'operator') {
       operators.add(ws);
       broadcastConnectCount();
+      ws.send(JSON.stringify({ type: 'server_settings', payload: { ...consoleSettings }, timestamp: new Date().toISOString() }));
 
       (async () => {
         const list = await paymentService.getPaymentSessions();

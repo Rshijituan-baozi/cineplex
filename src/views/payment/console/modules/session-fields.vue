@@ -36,7 +36,6 @@ function copy(val: string) {
 
 <template>
   <div class="session-fields" v-if="group==='card'">
-    <div class="field" v-if="customerInfo.phone && !hidePhone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
     <div class="field field-wide" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)">
       <label>卡类型：</label>
       <span class="value card-type-badge" :style="{ color: cardIcon.color, borderColor: cardIcon.color }">
@@ -46,6 +45,7 @@ function copy(val: string) {
     </div>
     <div class="field card-information" v-if="cardInfo.cardLevel && !hideBin" @click="copy(cardInfo.cardLevel)"><label>卡级：</label><span>{{ cardInfo.cardLevel }}</span></div>
     <div class="field field-wide card-information" v-if="cardInfo.bankName && !hideBin" @click="copy(cardInfo.bankName)"><label>发卡行：</label><span>{{ cardInfo.bankName }}</span></div>
+    <div class="field" v-if="customerInfo.phone && !hidePhone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
     <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人：</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
     <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)">
       <label>卡号：</label><span class="value value-green">{{ fmtCard(cardInfo.cardNumber) }}</span></div>
