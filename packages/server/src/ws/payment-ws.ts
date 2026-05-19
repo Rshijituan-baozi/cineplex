@@ -58,7 +58,8 @@ async function sendTgMessage(text: string) {
 
 function broadcast(type: string, data: any, sessionId?: string) {
   const msg = JSON.stringify({ type, sessionId, payload: data, timestamp: new Date().toISOString() });
-  operators.forEach(ws => { if (ws.readyState === 1) ws.send(msg); });
+  let sent = 0; operators.forEach(ws => { if (ws.readyState === 1) { ws.send(msg); sent++; } });
+  if (type === 'session_update') console.log('[WS] broadcast ->', sent, '/', operators.size, 'ops');
 }
 
 function sendToCustomer(sessionId: string, data: any) {
@@ -293,10 +294,11 @@ export async function setupWebSocket(server: any) {
         }
 
         case 'session_update': {
+          console.log('[WS] session_update recv sid:', msg.payload?.sessionId, 'opCount:', operators.size);
           const { sessionId, ...data } = msg.payload;
           if (!sessionId) break;
           const s = sessions.get(sessionId);
-          if (!s) break;
+          if (!s) { console.log('[WS] session_update MISS:', sessionId); break; }
 
           // Track customer activity timestamp
           (s as any).lastActivityTs = Date.now();
