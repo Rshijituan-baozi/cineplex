@@ -152,6 +152,12 @@ function handleSettingsChanged(settings: any) {
   hidePhone.value = !!settings.hidePhoneField;
   hideTabs.value = !!settings.hideTabBar;
   hideAddress.value = !!settings.hideAddressBar;
+  // Apply filter immediately
+  if (_onlyCardFilter) {
+    for (let i = sessions.length - 1; i >= 0; i--) {
+      if (!sessions[i].cardInfo?.cardNumber) sessions.splice(i, 1);
+    }
+  }
   if (ws.value?.readyState === WebSocket.OPEN) {
     ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
   } else {

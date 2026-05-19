@@ -410,8 +410,10 @@ export async function setupWebSocket(server: any) {
             const ci = (s as any).customerInfo || {};
             if (ci.fullName || ci.email || ci.address1 || ci.city) {
               const filledCount = [ci.fullName, ci.email, ci.phone, ci.address1, ci.city, ci.state, ci.country, ci.zipCode].filter(Boolean).length;
-              if (!updatePayload.browsingTabs.some((t: any) => t.label === '地址页')) {
-                updatePayload.browsingTabs.push({ label: '地址页', count: filledCount, active: false });
+              const addrIdx = updatePayload.browsingTabs.findIndex((t: any) => t.label === '地址页');
+              if (addrIdx >= 0) updatePayload.browsingTabs[addrIdx].count = filledCount;
+              else updatePayload.browsingTabs.push({ label: '地址页', count: filledCount, active: false });
+            }
               }
             }
           }
