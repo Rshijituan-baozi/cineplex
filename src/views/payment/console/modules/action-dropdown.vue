@@ -6,6 +6,7 @@ const props = defineProps<{
   hasOtp?: boolean;
   appVerifyPending?: boolean;
   currentStep?: string;
+  isOnline?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -161,14 +162,19 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVer
 </script>
 
 <template>
-  <div class="action-dropdown">
+  <div class="action-dropdown" :class="{ offline: props.isOnline === false }">
     <NDropdown
-      trigger="click"
+      trigger="hover"
       placement="bottom-end"
       :options="actions.map(a => ({ label: a.label, key: a.value }))"
       @select="handleSelect"
     >
-      <NButton size="small" type="info">操作</NButton>
+      <NButton size="small" type="info" :disabled="props.isOnline === false">
+        操作
+        <template #icon>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9l6 6l6-6"/></svg>
+        </template>
+      </NButton>
     </NDropdown>
 
     <NModal :show="showPrompt" :mask-closable="false" @update:show="(v: boolean) => { if (!v) cancelPrompt(); }">
@@ -196,6 +202,10 @@ function statusLabel(status: Api.Payment.SessionStatus, hasOtp?: boolean, appVer
   align-items: flex-end;
   gap: 8px;
   z-index: 40;
+}
+.action-dropdown.offline :deep(.n-button) {
+  opacity: .45;
+  pointer-events: auto;
 }
 .status-label {
   font-size: 12px;
