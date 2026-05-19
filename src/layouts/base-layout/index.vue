@@ -9,6 +9,7 @@ import GlobalSider from '../modules/global-sider/index.vue';
 import GlobalTab from '../modules/global-tab/index.vue';
 import GlobalContent from '../modules/global-content/index.vue';
 import ThemeDrawer from '../modules/theme-drawer/index.vue';
+import SystemUpdate from '../modules/system-update/index.vue';
 import { provideMixMenuContext } from '../modules/global-menu/context';
 
 defineOptions({
@@ -148,6 +149,7 @@ function getSiderAndCollapsedWidth(isCollapsed: boolean) {
     <GlobalMenu />
     <GlobalContent />
     <ThemeDrawer />
+    <SystemUpdate />
     <template #footer>
     </template>
   </AdminLayout>

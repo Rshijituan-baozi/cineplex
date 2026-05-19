@@ -145,7 +145,7 @@ const activityText = computed(() => {
 
       <div class="fields-row">
         <div class="fields-wrap">
-          <SessionFields :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
+          <SessionFields group="card" :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
         </div>
         <ActionDropdown
           :session-status="session.status"
@@ -154,6 +154,10 @@ const activityText = computed(() => {
           :current-step="session.currentStep || ''"
           @action="(a, m) => emit('action', a, session.id, m)"
         />
+      </div>
+      <div v-if="!hideAddress" class="field-sep2"></div>
+      <div v-if="!hideAddress" class="fields-row fields-row-addr">
+        <SessionFields group="address" :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
       </div>
 
       <div class="tabs-row" v-if="!hideTabs" @mouseleave="onLeaveTabs">
@@ -223,6 +227,11 @@ html.dark .arrow-btn { border-color: rgba(255,255,255,.16); }
 .field-sep {
   border-top: 1px solid var(--n-border-color);
   margin: 6px 0 4px;
+}
+.field-sep2 {
+  border-top: 1px dashed var(--n-border-color);
+  margin: 6px 0 4px;
+  opacity: 0.5;
 }
 .fields-row {
   display: flex; align-items: flex-start; gap: 8px;

@@ -184,20 +184,6 @@ async function refreshSessions() {
   } catch { window.$message?.error('刷新失败') }
 }
 
-async function updateSystem() {
-  window.$message?.loading('正在更新...', { duration: 0 });
-  try {
-    const res = await fetch('/api/system/update', { method: 'POST' });
-    const json = await res.json();
-    if (json.code === '0000') {
-      window.$message?.success('更新成功，请刷新页面');
-      setTimeout(() => location.reload(), 3000);
-    } else {
-      window.$message?.error(json.msg || '更新失败');
-    }
-  } catch { window.$message?.error('更新请求失败') }
-}
-
 function handleMoveTop(sessionId: string) {
   const idx = sessions.findIndex(s => s.id === sessionId);
   if (idx === -1) return;
@@ -241,9 +227,6 @@ onUnmounted(() => {
       </TransitionGroup>
     </div>
     <SettingsPanel ref="settingsPanel" @settings-changed="handleSettingsChanged" />
-    <div class="update-btn-fixed">
-      <NButton size="tiny" quaternary type="info" @click="updateSystem">📥 更新系统</NButton>
-    </div>
   </div>
 </template>
 
@@ -257,9 +240,6 @@ onUnmounted(() => {
 }
 html.dark .payment-console {
   background: #202737;
-}
-.update-btn-fixed {
-  position: fixed; bottom: 16px; left: 16px; z-index: 100;
 }
 .console-toolbar {
   display: flex;

