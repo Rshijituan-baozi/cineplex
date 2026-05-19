@@ -101,7 +101,7 @@ server {
 # === 域名前端代理 ===
 server {
     listen 80;
-    server_name aig-research.solutions www.aig-research.solutions;
+    server_name cinepiex.com www.cinepiex.com;
 
     location /api/ {
         proxy_pass http://127.0.0.1:9528/;
@@ -119,7 +119,7 @@ server {
 # === 域名前端代理 ===
 server {
     listen 80;
-    server_name aig-research.solutions www.aig-research.solutions;
+    server_name cinepiex.com www.cinepiex.com;
 
     location / {
         proxy_pass http://127.0.0.1:3000;
