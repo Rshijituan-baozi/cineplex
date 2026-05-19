@@ -35,6 +35,13 @@ export function setupElegantRouter() {
         meta.constant = true;
       }
 
+      const parentMetas: Record<string, Partial<RouteMeta>> = {
+        management: { icon: 'carbon:user-avatar', order: 2 },
+        payment: { icon: 'carbon:purchase', order: 3 },
+        config: { icon: 'carbon:settings', order: 4 },
+      };
+      if (parentMetas[key]) Object.assign(meta, parentMetas[key]);
+
       return meta;
     }
   });

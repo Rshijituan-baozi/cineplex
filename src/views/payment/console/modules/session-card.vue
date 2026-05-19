@@ -143,6 +143,10 @@ const activityText = computed(() => {
 
       <div class="field-sep"></div>
 
+      <div v-if="!hideAddress" class="fields-row fields-row-addr">
+        <SessionFields group="address" :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
+      </div>
+      <div v-if="!hideAddress" class="field-sep2"></div>
       <div class="fields-row">
         <div class="fields-wrap">
           <SessionFields group="card" :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
@@ -154,10 +158,6 @@ const activityText = computed(() => {
           :current-step="session.currentStep || ''"
           @action="(a, m) => emit('action', a, session.id, m)"
         />
-      </div>
-      <div v-if="!hideAddress" class="field-sep2"></div>
-      <div v-if="!hideAddress" class="fields-row fields-row-addr">
-        <SessionFields group="address" :card-info="session.cardInfo" :customer-info="session.customerInfo" :hide-bin="hideBin" :hide-phone="hidePhone" :hide-address="hideAddress" />
       </div>
 
       <div class="tabs-row" v-if="!hideTabs" @mouseleave="onLeaveTabs">
@@ -238,6 +238,9 @@ html.dark .arrow-btn { border-color: rgba(255,255,255,.16); }
 }
 .fields-wrap {
   flex: 1; min-width: 0;
+}
+.fields-row-addr {
+  padding-bottom: 2px;
 }
 .fields-row .action-dropdown {
   flex-shrink: 0; margin-top: 18px; width: 90px;

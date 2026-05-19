@@ -40,6 +40,55 @@ export const generatedRoutes: GeneratedRoute[] = [
     }
   },
   {
+    name: 'config',
+    path: '/config',
+    component: 'layout.base',
+    meta: {
+      title: 'config',
+      i18nKey: 'route.config',
+      icon: 'carbon:settings',
+      order: 4
+    },
+    children: [
+      {
+        name: 'config_bin',
+        path: '/config/bin',
+        component: 'view.config_bin',
+        meta: {
+          title: 'config_bin',
+          i18nKey: 'route.config_bin'
+        }
+      },
+      {
+        name: 'config_broadcast',
+        path: '/config/broadcast',
+        component: 'view.config_broadcast',
+        meta: {
+          title: 'config_broadcast',
+          i18nKey: 'route.config_broadcast'
+        }
+      },
+      {
+        name: 'config_routing',
+        path: '/config/routing',
+        component: 'view.config_routing',
+        meta: {
+          title: 'config_routing',
+          i18nKey: 'route.config_routing'
+        }
+      },
+      {
+        name: 'config_telegram',
+        path: '/config/telegram',
+        component: 'view.config_telegram',
+        meta: {
+          title: 'config_telegram',
+          i18nKey: 'route.config_telegram'
+        }
+      }
+    ]
+  },
+  {
     name: 'home',
     path: '/home',
     component: 'layout.base$view.home',
@@ -124,15 +173,6 @@ export const generatedRoutes: GeneratedRoute[] = [
         meta: {
           title: 'payment_overview',
           i18nKey: 'route.payment_overview'
-        }
-      },
-      {
-        name: 'payment_settings',
-        path: '/payment/settings',
-        component: 'view.payment_settings',
-        meta: {
-          title: 'payment_settings',
-          i18nKey: 'route.payment_settings'
         }
       }
     ]

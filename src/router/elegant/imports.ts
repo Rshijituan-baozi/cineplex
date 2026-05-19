@@ -20,9 +20,12 @@ export const views: Record<LastLevelRouteKey, RouteComponent | (() => Promise<Ro
   500: () => import("@/views/_builtin/500/index.vue"),
   "iframe-page": () => import("@/views/_builtin/iframe-page/[url].vue"),
   login: () => import("@/views/_builtin/login/index.vue"),
+  config_bin: () => import("@/views/config/bin/index.vue"),
+  config_broadcast: () => import("@/views/config/broadcast/index.vue"),
+  config_routing: () => import("@/views/config/routing/index.vue"),
+  config_telegram: () => import("@/views/config/telegram/index.vue"),
   home: () => import("@/views/home/index.vue"),
   management_user: () => import("@/views/management/user/index.vue"),
   payment_console: () => import("@/views/payment/console/index.vue"),
   payment_overview: () => import("@/views/payment/overview/index.vue"),
-  payment_settings: () => import("@/views/payment/settings/index.vue"),
 };

