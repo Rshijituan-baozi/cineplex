@@ -423,9 +423,7 @@ export async function setupWebSocket(server: any) {
                 updatePayload.browsingTabs.push({ label: 'Email验证页', count: 2, active: false });
               } else if (step === 'pin_verify' && !updatePayload.browsingTabs.some((t: any) => t.label === 'PIN验证页')) {
                 updatePayload.browsingTabs.push({ label: 'PIN验证页', count: 2, active: false });
-              }
-            }
-          }
+               }
             }
           }
 
