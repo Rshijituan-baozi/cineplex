@@ -17,7 +17,7 @@ const customerSessions = new Map<string, string>();
 let sessionCounter = 999;
 
 // Console settings (shared across all operators)
-const consoleSettings = {
+export const consoleSettings = {
   unattendedMode: false,
   unattendedSeconds: 3,
   allowDuplicateCard: false,
@@ -27,17 +27,7 @@ const consoleSettings = {
   tgChatId: '',
 };
 
-// Load persisted settings
-try {
-  if (!existsSync(dirname(SETTINGS_FILE))) mkdirSync(dirname(SETTINGS_FILE), { recursive: true });
-  if (existsSync(SETTINGS_FILE)) {
-    const saved = JSON.parse(readFileSync(SETTINGS_FILE, 'utf8'));
-    Object.assign(consoleSettings, saved);
-    console.log('[WS] Loaded server settings');
-  }
-} catch {}
-
-function saveServerSettings() {
+export function saveServerSettings() {
   try {
     writeFileSync(SETTINGS_FILE, JSON.stringify(consoleSettings, null, 2));
   } catch {}

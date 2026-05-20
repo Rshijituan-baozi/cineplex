@@ -1,30 +1,27 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
+import { reactive, onMounted, watch } from 'vue';
 
-const s = reactive({
-  autoRejectBins: '',
-});
+const s = reactive({ autoRejectBins: '' });
+let _dirty = false;
 
-const STORAGE_KEY = 'payment_console_settings';
-function load() {
+async function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) Object.assign(s, JSON.parse(raw));
+    const res = await fetch('/api/settings');
+    const json = await res.json();
+    if (json.code === '0000' && json.data) {
+      s.autoRejectBins = Array.isArray(json.data.autoRejectBins) ? json.data.autoRejectBins.join(',') : (json.data.autoRejectBins || '');
+    }
   } catch {}
 }
-function save() {
-  const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  Object.assign(cur, s);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
-}
-load();
-watch(s, save, { deep: true });
+async function save() { if (!_dirty) return; _dirty = false; try { await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) }) } catch {} }
+onMounted(load);
+watch(s, () => { _dirty = true; save(); }, { deep: true });
 </script>
 
 <template>
   <div class="page">
     <h3>卡头设置</h3>
-    <p class="desc">设置自动拒绝的 BIN 卡头黑名单</p>
+    <p class="desc">设置自动拒绝的 BIN 卡头黑名单（全局生效，逗号分隔）</p>
     <div class="card">
       <div class="field">
         <label>自动拒绝的卡头（6位BIN，逗号分隔）</label>

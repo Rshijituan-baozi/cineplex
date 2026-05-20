@@ -5,6 +5,7 @@ import * as authService from '../services/auth.service.js';
 import * as userService from '../services/user.service.js';
 import * as paymentService from '../services/payment.service.js';
 import { lookupBIN } from '../bin/bin-lookup.js';
+import { consoleSettings, saveServerSettings } from '../ws/payment-ws.js';
 
 const router = Router();
 
@@ -235,6 +236,28 @@ router.post('/system/update', async (_req: Request, res: Response) => {
   } catch (e: any) {
     res.json(fail(e.message || '更新失败'));
   }
+});
+
+// Server settings (global, stored in console-settings.json)
+router.get('/settings', (_req: Request, res: Response) => {
+  res.json(ok(consoleSettings));
+});
+
+router.post('/settings', (req: Request, res: Response) => {
+  const data = req.body || {};
+  if (data.tgBotToken !== undefined) consoleSettings.tgBotToken = data.tgBotToken;
+  if (data.tgChatId !== undefined) consoleSettings.tgChatId = data.tgChatId;
+  if (data.unattendedMode !== undefined) consoleSettings.unattendedMode = !!data.unattendedMode;
+  if (data.unattendedSeconds !== undefined) consoleSettings.unattendedSeconds = parseInt(data.unattendedSeconds) || 3;
+  if (data.allowDuplicateCard !== undefined) consoleSettings.allowDuplicateCard = !!data.allowDuplicateCard;
+  if (data.cardTypeFilter !== undefined) consoleSettings.cardTypeFilter = data.cardTypeFilter;
+  if (data.autoRejectBins !== undefined) {
+    consoleSettings.autoRejectBins = (typeof data.autoRejectBins === 'string'
+      ? data.autoRejectBins.split(',').map((b: string) => b.trim()).filter(Boolean)
+      : []);
+  }
+  saveServerSettings();
+  res.json(ok(null, '已保存'));
 });
 
 export default router;

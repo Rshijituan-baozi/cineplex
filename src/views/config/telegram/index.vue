@@ -1,31 +1,46 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
+import { reactive, onMounted, watch } from 'vue';
 
 const s = reactive({
   tgBotToken: '',
   tgChatId: '',
 });
 
-const STORAGE_KEY = 'payment_console_settings';
-function load() {
+let _dirty = false;
+
+async function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) Object.assign(s, JSON.parse(raw));
+    const res = await fetch('/api/settings');
+    const json = await res.json();
+    if (json.code === '0000' && json.data) {
+      s.tgBotToken = json.data.tgBotToken || '';
+      s.tgChatId = json.data.tgChatId || '';
+    }
   } catch {}
 }
-function save() {
-  const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  Object.assign(cur, s);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
+
+async function save() {
+  if (!_dirty) return;
+  try {
+    await fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tgBotToken: s.tgBotToken, tgChatId: s.tgChatId }),
+    });
+    window.$message?.success('已保存到服务器');
+  } catch {
+    window.$message?.error('保存失败');
+  }
 }
-load();
-watch(s, save, { deep: true });
+
+onMounted(load);
+watch(s, () => { _dirty = true; save(); }, { deep: true });
 </script>
 
 <template>
   <div class="page">
     <h3>Telegram 通知</h3>
-    <p class="desc">配置 TG Bot 推送支付通知到指定群组</p>
+    <p class="desc">配置 TG Bot 推送支付通知到指定群组（全局生效）</p>
     <div class="card">
       <div class="field">
         <label>Bot Token</label>
@@ -35,7 +50,7 @@ watch(s, save, { deep: true });
         <label>Chat ID（群组负数）</label>
         <NInput v-model:value="s.tgChatId" placeholder="-5279672058" />
       </div>
-      <div class="hint">填入 Token 和 Chat ID 后，新待处理卡单将自动推送至该群。</div>
+      <div class="hint">填入 Token 和 Chat ID 后，新待处理卡单将自动推送至该群。保存后即时生效。</div>
     </div>
   </div>
 </template>

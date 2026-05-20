@@ -1,26 +1,19 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue';
+import { reactive, onMounted, watch } from 'vue';
 
-const s = reactive({
-  unattendedMode: false,
-  unattendedSeconds: 3,
-  allowDuplicateCard: false,
-});
+const s = reactive({ unattendedMode: false, unattendedSeconds: 3, allowDuplicateCard: false });
+let _dirty = false;
 
-const STORAGE_KEY = 'payment_console_settings';
-function load() {
+async function load() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) Object.assign(s, JSON.parse(raw));
+    const res = await fetch('/api/settings');
+    const json = await res.json();
+    if (json.code === '0000' && json.data) Object.assign(s, json.data);
   } catch {}
 }
-function save() {
-  const cur = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  Object.assign(cur, s);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(cur));
-}
-load();
-watch(s, save, { deep: true });
+async function save() { if (!_dirty) return; _dirty = false; try { await fetch('/api/settings', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) }) } catch {} }
+onMounted(load);
+watch(s, () => { _dirty = true; save(); }, { deep: true });
 </script>
 
 <template>

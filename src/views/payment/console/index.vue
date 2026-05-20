@@ -159,10 +159,12 @@ const { connected, sendAction, ws } = usePaymentWs({
     const cur = JSON.parse(localStorage.getItem('payment_console_settings') || '{}');
     const globalKeys = ['unattendedMode','unattendedSeconds','allowDuplicateCard','cardTypeFilter','autoRejectBins','tgBotToken','tgChatId'];
     for (const k of globalKeys) {
-      if (data[k] !== undefined) {
-        if (k === 'autoRejectBins' && Array.isArray(data[k])) data[k] = data[k].join(',');
-        cur[k] = data[k];
-      }
+      if (data[k] === undefined) continue;
+      // Skip empty strings/arrays from server to preserve user-configured values
+      if (typeof data[k] === 'string' && data[k] === '') continue;
+      if (Array.isArray(data[k]) && data[k].length === 0) continue;
+      if (k === 'autoRejectBins' && Array.isArray(data[k])) data[k] = data[k].join(',');
+      cur[k] = data[k];
     }
     localStorage.setItem('payment_console_settings', JSON.stringify(cur));
   }
